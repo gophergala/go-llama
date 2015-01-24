@@ -1,17 +1,26 @@
-console.log('starting app.js');
+define(
+	['marionette', 'app/views/boardView'], 
+	function(Marionette, Board){
+		console.log('starting app.js');
 
 
-var app = new Marionette.Application();
+		var app = new Marionette.Application();
 
-app.addRegions({
-	board: '#board'
-});
+		app.addRegions({
+			board: '#board'
+		});
 
-app.addInitializer(function(){
+		app.addInitializer(function(){
+			app.board.show(new Board());
+		});
 
-});
-
-app.start();
+		app.start();
 
 
-console.log('app.js started');
+		console.log('app.js started');
+
+		return app;
+	}
+);
+
+		

@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script type="text/javascript" src="js/lib/jquery/jquery.js"></script>
-		<script type="text/javascript" src="js/lib/underscore/underscore.js"></script>
-		<script type="text/javascript" src="js/lib/backbone/backbone.js"></script>
-		<script type="text/javascript" src="js/lib/backbone/backbone.marionette.js"></script>
-
-
-
-		<script type="text/javascript" src="js/app.js"></script>
+		<link rel="stylesheet" href="css/styles.css" />
+		<script data-main="js/main.js" src="js/require.js"></script>
 	</head>
 	<body>
 		<div>
