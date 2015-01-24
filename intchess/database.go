@@ -24,10 +24,17 @@ func CreateDatabaseTables() {
 	dbGorm.DropTableIfExists(&User{})
 	dbGorm.CreateTable(&User{})
 	//create me a default user
-	fmt.Printf("Adding default test user to database...\n")
+	fmt.Printf("Adding default test users to database...\n")
 	pass, _ := bcrypt.GenerateFromPassword([]byte("test"), 3)
 	u := User{
 		Username:    "test",
+		AccessToken: string(pass),
+		IsAi:        false,
+		VersesAi:    true,
+	}
+	dbGorm.Create(&u)
+	u = User{
+		Username:    "test2",
 		AccessToken: string(pass),
 		IsAi:        false,
 		VersesAi:    true,

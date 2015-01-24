@@ -35,7 +35,7 @@ func (nt *NullTime) Scan(value interface{}) error {
 		nt.Time, nt.Valid = iface, true
 		return nil
 	case NullTime:
-		nt.Time, nt.Valid = iface.Time, iface.Valid
+		nt.Time, nt.Valid = iface.Time, true //should this be nt.Valid instead of true?
 		return nil
 	default:
 		return nil

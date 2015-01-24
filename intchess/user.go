@@ -7,13 +7,13 @@ import (
 type User struct {
 	Id          int64
 	Username    string `sql:"type:varchar(60);"`
-	AccessToken string `sql:"type:varchar(60);"`
-	Email       string `sql:"type:varchar(100);"`
+	AccessToken string `sql:"type:varchar(60);" json:"-"`
+	CurrentRank int
 	IsAi        bool
 	VersesAi    bool
 	CreatedAt   NullTime
 	UpdatedAt   NullTime
-	DeletedAt   NullTime
+	DeletedAt   NullTime `json:"-"`
 }
 
 func AttemptLogin(propUsername string, propPassword string) *User {
