@@ -6,7 +6,8 @@ require.config({
 		backbone: 'lib/backbone/backbone',
 		marionette: 'lib/backbone/backbone.marionette',
 		templates: '../templates',
-		app:'app'
+		app:'app',
+		wsHandler: 'lib/wsHandler'
 	},
 	shim: {
 		jquery : {
@@ -25,14 +26,20 @@ require.config({
 		marionette : {
 			exports : 'Marionette',
 			deps : ['backbone']
+		},
+		wsHander: {
+			exports: 'wsHandler',
+			deps: ['jquery', 'backbone', 'underscore']
 		}
 	}	
 });
 
 require([
-		'app', 'jquery', 'jqueryui', 'underscore', 'backbone', 'marionette'
+		'app', 'jquery', 'jqueryui', 'underscore', 'backbone', 'marionette', 'wsHandler'
 	],
-	function(App, $, _, jqueryui, Backbone, Marionette){
+
+	function(App, $, jqueryui, _, Backbone, Marionette, wsHandler){
 		App.start();
+
 	}
 );
