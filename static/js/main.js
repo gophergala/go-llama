@@ -41,5 +41,8 @@ require([
 	function(App, $, jqueryui, _, Backbone, Marionette, wsHandler){
 		App.start();
 
+		
+
+
 	}
 );

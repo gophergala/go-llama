@@ -28,11 +28,11 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 		switch(data.type){
 			case 'authentication_response':
 					wsHandler.trigger('authentication_response', data.response, data.user);
-					//console.log(data.response, data.user);
 				break;
 
 			default:
-				console.log('Unknown data type', data.type, data);
+				//console.log('Unknown data type', data.type, data);
+				break;
 		}
 	};
 
