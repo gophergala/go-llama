@@ -69,6 +69,17 @@ func Test_MakeMove(t *testing.T) {
 	}
 }
 
+func Test_occupied(t *testing.T) {
+	game = NewGame()
+
+	if occupied(&game, [2]byte{4, 4}) {
+		t.Errorf("Square was occupied when it should not have been")
+	}
+	if !occupied(&game, [2]byte{1, 1}) {
+		t.Errorf("Square was not occupied when it should have been")
+	}
+}
+
 func Test_GetValidMoves(t *testing.T) {
 
 }
