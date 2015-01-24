@@ -1,64 +1,82 @@
 package chessverifier
 
-import (
-	"fmt"
-)
+// import (
+// 	"fmt"
+// )
 
 type BoardState [8][8][]byte
-
-func main() {
-	fmt.Printf("Hello world!\n")
-
+type GameState struct {
+	board    BoardState
+	moveList [][]byte
 }
 
-func GetValidMoves(board BoardState, piece []byte) (moveList [][]byte) {
-
+func newGame() GameState {
+	var game GameState
+	game.board = startBoardState
+	return game
 }
 
-func GetAllValidMoves(board BoardState) (moveList [][]byte) {
-	for x := range board {
-		for y := range board[x] {
-			if len(board[x][y]) == 0 {
-				moveList = append(moveList, GetValidMoves(board, board[x][y])...)
+// func main() {
+// 	fmt.Printf("Hello world!\n")
+
+// }
+
+func GetValidMoves(game *GameState, piece *[]byte) (validMoves [][]byte) {
+	return [][]byte{}
+}
+
+func GetAllValidMoves(game *GameState) (validMoves [][]byte) {
+	for x := range game.board {
+		for y := range game.board[x] {
+			if len(game.board[x][y]) != 0 {
+				validMoves = append(validMoves, GetValidMoves(game, &game.board[x][y])...)
 			}
 		}
 	}
 	return
 }
 
-func IsMoveValid(board BoardState, move []byte) bool {
-	var moveList = GetValidMoves(board, move[0:2])
-	for x := range moveList {
-		if moveEqual(move, moveList[x]) {
+func IsMoveValid(game *GameState, move *[]byte) bool {
+	var x, y = getSquareIndices((*move)[0:1])
+	var moveList = GetValidMoves(game, &game.board[x][y])
+	for i := range moveList {
+		if moveEqual(move, &moveList[i]) {
 			return true
 		}
 	}
 	return false
 }
 
-func GetBoardState(moveList [][]byte) BoardState {
-	var board BoardState = startBoardState
-	for moveNum := range moveList {
-		if IsMoveValid(board, moveList[moveNum]) {
-			//@todo finish
-		}
+func GetBoardState(moveList *[][]byte) GameState {
+	var game GameState = newGame()
+	for moveNum := range *moveList {
+		MakeMove(&game, &(*moveList)[moveNum])
 	}
-	return board
+	return game
 }
 
-func getSquareIndexes(squareID []byte) (x, y int) {
+func MakeMove(game *GameState, move *[]byte) {
+	if IsMoveValid(game, move) {
+		var x, y = getSquareIndices((*move)[0:1])
+		var piece = game.board[x][y]
+		game.board[(*move)[0]][(*move)[1]] = []byte{}
+		game.board[(*move)[4]][(*move)[5]] = piece
+	}
+}
+
+func getSquareIndices(squareID []byte) (x, y int) {
 	y = int(squareID[1] - '1')
 	x = int(squareID[0] - 'a')
 	return
 }
 
-func moveEqual(a, b []byte) bool {
-	if len(a) != len(b) {
+func moveEqual(a, b *[]byte) bool {
+	if len(*a) != len(*b) {
 		return false
 	}
 
-	for i := range a {
-		if a[i] != b[i] {
+	for i := range *a {
+		if (*a)[i] != (*b)[i] {
 			return false
 		}
 	}
