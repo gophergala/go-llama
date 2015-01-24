@@ -4,6 +4,13 @@ type APITypeOnly struct {
 	Type string `json:"type"`
 }
 
+/*
+{
+"type":"authentication_request",
+"username":"test",
+"user_token":"test"
+}
+*/
 type APIAuthenticationRequest struct {
 	Type      string `json:"type"`
 	Username  string `json:"username"`
@@ -21,12 +28,18 @@ type APIGameRequest struct {
 	Opponent *User  `json:"opponent"`
 }
 
+/*
+{
+"type":"game_response",
+"response":"ok"
+}
+*/
 type APIGameResponse struct {
 	Type     string `json:"type"`
 	Response string `json:"response"`
 }
 
 type APIGameOutput struct {
-	Type string    `json:"type"`
-	Game ChessGame `json:"game"`
+	Type string     `json:"type"`
+	Game *ChessGame `json:"game"`
 }

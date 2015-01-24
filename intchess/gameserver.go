@@ -5,7 +5,8 @@ import (
 	//	"encoding/json"
 	"fmt"
 	"math/rand"
-	"strconv"
+	//	"strconv"
+	"sync"
 	"time"
 )
 
@@ -20,6 +21,7 @@ type GameServer struct {
 	register    chan *Connection     // Unregister requests from connections.
 	unregister  chan *Connection
 	count       int
+	gameCount   SyncIndex
 }
 
 var GS = GameServer{
@@ -30,7 +32,12 @@ var GS = GameServer{
 	count:       0,
 }
 
-var Games []ChessGame
+var Games = make(map[int]*ChessGame) //the active (provisional and running) games on the server
+
+type SyncIndex struct {
+	sync.Mutex
+	i int
+}
 
 func (GS *GameServer) run() {
 	for {
@@ -63,9 +70,16 @@ func (GS *GameServer) activateConnection(c *Connection) {
 }
 
 func (GS *GameServer) deactivateConnection(c *Connection) {
-	//delete(h.connections, c)
+
+	if c.User != nil {
+		fmt.Println("Connection lost for " + c.User.Username)
+	} else {
+		fmt.Println("Connection lost for anon user")
+	}
+
 	GS.connections[c] = false
 	close(c.sendMessages)
+	delete(GS.connections, c)
 }
 
 func (GS *GameServer) broadcastAll(msg string) {
@@ -93,6 +107,7 @@ func (GS *GameServer) NumActiveConnections() int {
 
 func WsHandler(ws *websocket.Conn) {
 	//a new websocket has been created
+	fmt.Println("Anon user joined")
 	Client := &Connection{sendMessages: make(chan string, 256), ws: ws}
 
 	GS.activateConnection(Client)
@@ -104,6 +119,7 @@ func WsHandler(ws *websocket.Conn) {
 }
 
 func StartGameServer() {
+	fmt.Println("Go-Llama Chess Server running.")
 	go GS.run()
 	go GS.matchCreationLoop()
 }
@@ -112,7 +128,7 @@ func (GS *GameServer) matchCreationLoop() {
 	for {
 		//find out if enough time has passed since the last game loop. If it hasn't, then don't run
 
-		fmt.Println("Server: There is currently " + strconv.Itoa(GS.NumActiveConnections()) + " players online.")
+		//fmt.Println("Server: There is currently " + strconv.Itoa(GS.NumActiveConnections()) + " players online.")
 		GS.clearExpiredGames()
 		GS.attemptMatchCreations()
 
@@ -125,7 +141,7 @@ func (GS *GameServer) attemptMatchCreations() {
 	var outOfGameConnections []*Connection
 
 	for conn := range GS.connections {
-		if GS.connections[conn] == true && conn.InGame == false && conn.User != nil {
+		if GS.connections[conn] == true && conn.GameIndex == nil && conn.User != nil {
 			outOfGameConnections = append(outOfGameConnections, conn)
 		}
 	}
@@ -154,10 +170,28 @@ func (GS *GameServer) attemptMatchCreations() {
 }
 
 func (GS *GameServer) attemptMatchCreation(player1 *Connection, player2 *Connection) {
-	fmt.Println("Server: Attempting to match " + player1.User.Username + " with " + player2.User.Username)
-	player1.SendGameRequest(player2)
-	player2.SendGameRequest(player1)
+	fmt.Println("Attempting to match " + player1.User.Username + " with " + player2.User.Username)
 	//now create a provisional game
-	g := NewGame()
-	games := append(games, g)
+	GS.gameCount.Lock()
+	gameIndex := GS.gameCount.i
+	GS.gameCount.i++
+	GS.gameCount.Unlock()
+
+	g := NewGame(player1, player2)
+
+	Games[gameIndex] = &g
+	player1.SendGameRequest(player2, gameIndex)
+	player2.SendGameRequest(player1, gameIndex)
+
+}
+
+func (GS *GameServer) clearExpiredGames() {
+	for index, game := range Games {
+		if game.Expired() { //offer to play expired
+			delete(Games, index)
+		}
+		if game.End() {
+			delete(Games, index)
+		}
+	}
 }

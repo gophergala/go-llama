@@ -23,6 +23,17 @@ func CreateDatabaseTables() {
 	fmt.Printf("Dropping (if exists) and creating Users table...\n")
 	dbGorm.DropTableIfExists(&User{})
 	dbGorm.CreateTable(&User{})
+
+	fmt.Printf("Dropping (if exists) and creating ChessGame table...\n")
+	dbGorm.DropTableIfExists(&ChessGame{})
+	dbGorm.CreateTable(&ChessGame{})
+
+	dbGorm.DropTableIfExists(&UserRankChange{})
+	dbGorm.CreateTable(&UserRankChange{})
+
+	dbGorm.DropTableIfExists(&GameMove{})
+	dbGorm.CreateTable(&GameMove{})
+
 	//create me a default user
 	fmt.Printf("Adding default test users to database...\n")
 	pass, _ := bcrypt.GenerateFromPassword([]byte("test"), 3)
