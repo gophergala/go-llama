@@ -10,7 +10,7 @@ import (
 var dbGorm *gorm.DB
 
 func ConnectToDatabase() error {
-	dbGormConnection, err := gorm.Open("mysql", "intchess:lolCAKEolol123@tcp(106.187.103.125:3306)/intchess")
+	dbGormConnection, err := gorm.Open("mysql", dbConnString) //NOT INCLUDED IN REPO
 	if err != nil {
 		return err
 	}
