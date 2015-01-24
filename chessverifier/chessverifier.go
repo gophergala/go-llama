@@ -4,22 +4,29 @@ import (
 	"fmt"
 )
 
-type BoardState [8][8]string
+type BoardState [8][8][]byte
 
 func main() {
 	fmt.Printf("Hello world!\n")
 
 }
 
-func GetValidMoves(board BoardState, piece []rune) [][]rune {
+func GetValidMoves(board BoardState, piece []byte) (moveList [][]byte) {
 
 }
 
-func GetAllValidMoves(board BoardState) [][]rune {
-	for 
+func GetAllValidMoves(board BoardState) (moveList [][]byte) {
+	for x := range board {
+		for y := range board[x] {
+			if len(board[x][y]) == 0 {
+				moveList = append(moveList, GetValidMoves(board, board[x][y])...)
+			}
+		}
+	}
+	return
 }
 
-func IsMoveValid(board BoardState, move []rune) bool {
+func IsMoveValid(board BoardState, move []byte) bool {
 	var moveList = GetValidMoves(board, move[0:2])
 	for x := range moveList {
 		if moveEqual(move, moveList[x]) {
@@ -29,22 +36,23 @@ func IsMoveValid(board BoardState, move []rune) bool {
 	return false
 }
 
-func GetBoardState(moveList [][]rune) BoardState {
+func GetBoardState(moveList [][]byte) BoardState {
 	var board BoardState = startBoardState
 	for moveNum := range moveList {
 		if IsMoveValid(board, moveList[moveNum]) {
 			//@todo finish
 		}
 	}
+	return board
 }
 
-func getSquareIndexes(squareID []rune) (x, y int) {
+func getSquareIndexes(squareID []byte) (x, y int) {
 	y = int(squareID[1] - '1')
 	x = int(squareID[0] - 'a')
 	return
 }
 
-func moveEqual(a, b []rune) bool {
+func moveEqual(a, b []byte) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -59,12 +67,12 @@ func moveEqual(a, b []rune) bool {
 }
 
 var startBoardState BoardState = BoardState{
-	[8]string{"WR1", "WP1", "", "", "", "", "BP1", "BR1"},
-	[8]string{"WK1", "WP2", "", "", "", "", "BP2", "BK1"},
-	[8]string{"WB1", "WP3", "", "", "", "", "BP3", "BB1"},
-	[8]string{"WQ1", "WP4", "", "", "", "", "BP4", "BK1"},
-	[8]string{"WK1", "WP5", "", "", "", "", "BP5", "BK1"},
-	[8]string{"WB3", "WP6", "", "", "", "", "BP6", "BB2"},
-	[8]string{"WK3", "WP7", "", "", "", "", "BP7", "BK2"},
-	[8]string{"WR2", "WP8", "", "", "", "", "BP8", "BR2"},
+	[8][]byte{[]byte{'W', 'R', '1'}, []byte{'W', 'P', '1'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '1'}, []byte{'B', 'R', '1'}},
+	[8][]byte{[]byte{'W', 'K', '1'}, []byte{'W', 'P', '2'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '2'}, []byte{'B', 'K', '1'}},
+	[8][]byte{[]byte{'W', 'B', '1'}, []byte{'W', 'P', '3'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '3'}, []byte{'B', 'B', '1'}},
+	[8][]byte{[]byte{'W', 'Q', '1'}, []byte{'W', 'P', '4'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '4'}, []byte{'B', 'K', '1'}},
+	[8][]byte{[]byte{'W', 'K', '1'}, []byte{'W', 'P', '5'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '5'}, []byte{'B', 'K', '1'}},
+	[8][]byte{[]byte{'W', 'B', '3'}, []byte{'W', 'P', '6'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '6'}, []byte{'B', 'B', '2'}},
+	[8][]byte{[]byte{'W', 'K', '3'}, []byte{'W', 'P', '7'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '7'}, []byte{'B', 'K', '2'}},
+	[8][]byte{[]byte{'W', 'R', '2'}, []byte{'W', 'P', '8'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '8'}, []byte{'B', 'R', '2'}},
 }
