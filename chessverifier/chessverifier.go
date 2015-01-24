@@ -10,7 +10,7 @@ type GameState struct {
 	moveList [][]byte
 }
 
-func newGame() GameState {
+func NewGame() GameState {
 	var game GameState
 	game.board = startBoardState
 	return game
@@ -52,7 +52,7 @@ func GetAllValidMoves(game *GameState) (validMoves [][]byte) {
 }
 
 func IsMoveValid(game *GameState, move *[]byte) bool {
-	var x, y = getSquareIndices((*move)[0:1])
+	var x, y = getSquareIndices((*move)[0:2])
 	var moveList = GetValidMoves(game, x, y)
 	for i := range moveList {
 		if moveEqual(move, &moveList[i]) {
@@ -63,28 +63,34 @@ func IsMoveValid(game *GameState, move *[]byte) bool {
 }
 
 func GetBoardState(moveList *[][]byte) GameState {
-	var game GameState = newGame()
+	var game GameState = NewGame()
 	for moveNum := range *moveList {
 		MakeMove(&game, &(*moveList)[moveNum])
 	}
 	return game
 }
 
+//This function is used to apply a move (eg "a2-a4") to the board
+//it will verify first if the move is valid
 func MakeMove(game *GameState, move *[]byte) {
 	if IsMoveValid(game, move) {
-		var x, y = getSquareIndices((*move)[0:1])
-		var piece = game.board[x][y]
-		game.board[(*move)[0]][(*move)[1]] = []byte{}
-		game.board[(*move)[4]][(*move)[5]] = piece
+		ox, oy := getSquareIndices((*move)[0:2])
+		nx, ny := getSquareIndices((*move)[3:5])
+		var piece = game.board[ox][oy]
+		game.board[ox][oy] = []byte{}
+		game.board[nx][ny] = piece
 	}
 }
 
+//This function is used to convert a piece location in Algebraic notation
+//to a piece location in the internal board 2d slice
 func getSquareIndices(squareID []byte) (x, y int) {
 	y = int(squareID[1] - '1')
 	x = int(squareID[0] - 'a')
 	return
 }
 
+//This function is used to test the equality of two byte slices
 func moveEqual(a, b *[]byte) bool {
 	if len(*a) != len(*b) {
 		return false
