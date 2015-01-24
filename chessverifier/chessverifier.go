@@ -21,15 +21,30 @@ func newGame() GameState {
 
 // }
 
-func GetValidMoves(game *GameState, piece *[]byte) (validMoves [][]byte) {
-	return [][]byte{}
+func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
+	var piece = game.board[x][y]
+	if len(piece) == 0 {
+		return [][]byte{}
+	}
+	var newMove = []byte{}
+	switch piece[1] {
+	case 'P':
+		if piece[0] == 'w' {
+			newMove = []byte{byte(x + '1'), byte(y + 'a'), '-', byte(x + '1' + 1), byte(y + 'a')}
+		} else {
+			newMove = []byte{byte(x + '1'), byte(y + 'a'), '-', byte(x + '1' - 1), byte(y + 'a')}
+		}
+		validMoves = append(validMoves, newMove)
+	}
+
+	return [][]byte{[]byte{'a', '1', '-', 'b', '2'}}
 }
 
 func GetAllValidMoves(game *GameState) (validMoves [][]byte) {
 	for x := range game.board {
 		for y := range game.board[x] {
 			if len(game.board[x][y]) != 0 {
-				validMoves = append(validMoves, GetValidMoves(game, &game.board[x][y])...)
+				validMoves = append(validMoves, GetValidMoves(game, x, y)...)
 			}
 		}
 	}
@@ -38,7 +53,7 @@ func GetAllValidMoves(game *GameState) (validMoves [][]byte) {
 
 func IsMoveValid(game *GameState, move *[]byte) bool {
 	var x, y = getSquareIndices((*move)[0:1])
-	var moveList = GetValidMoves(game, &game.board[x][y])
+	var moveList = GetValidMoves(game, x, y)
 	for i := range moveList {
 		if moveEqual(move, &moveList[i]) {
 			return true
