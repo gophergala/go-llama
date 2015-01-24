@@ -1,13 +1,10 @@
 define(
 	['marionette', 'app/views/boardView'], 
 	function(Marionette, Board){
-		console.log('starting app.js');
-
-
 		var app = new Marionette.Application();
 
 		app.addRegions({
-			board: '#board'
+			board: '#board-div'
 		});
 
 		app.addInitializer(function(){
@@ -15,9 +12,6 @@ define(
 		});
 
 		app.start();
-
-
-		console.log('app.js started');
 
 		return app;
 	}

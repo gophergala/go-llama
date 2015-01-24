@@ -32,7 +32,7 @@ require.config({
 require([
 		'app', 'jquery', 'jqueryui', 'underscore', 'backbone', 'marionette'
 	],
-	function(App, $, _, Backbone, Marionette){
+	function(App, $, _, jqueryui, Backbone, Marionette){
 		App.start();
 	}
 );
