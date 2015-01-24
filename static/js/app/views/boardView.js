@@ -1,5 +1,5 @@
 define(
-	['marionette', 'text!templates/board.html',
+	['text!templates/board.html',
 	'app/collections/piecesCol',
 	'app/views/piecesColView',
 	'app/models/pawn',
@@ -9,7 +9,7 @@ define(
 	'app/models/queen',
 	'app/models/king'
 	],
-	function(Marionette, boardTemplate, PiecesCol, PiecesColView, Pawn, Rook, Knight, Bishop, Queen, King)
+	function(boardTemplate, PiecesCol, PiecesColView, Pawn, Rook, Knight, Bishop, Queen, King)
 	{
 		var BoardView = Marionette.Layout.extend(
 		{
@@ -72,12 +72,6 @@ define(
 			onRender:function(){
 				this.blackPiecesRegion.show(this.blackPiecesView);
 				this.whitePiecesRegion.show(this.whitePiecesView);
-				$('td').droppable({
-					drop: function(){
-						alert('dropped');
-					},
-					accept: '.piece'
-				});
 			}
 		});
 		return BoardView;

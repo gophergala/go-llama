@@ -20,6 +20,8 @@ td.white {
 
 .piece {
 	position:absolute;
+	/*position:absolute;*/
+	width:54px;
 }
 
 
@@ -32,4 +34,8 @@ td.white {
 	margin-top: 20px;
 	margin-right: 20px;
 	width: 600px;
+}
+
+td.highlight {
+	background-color: cyan;
 }
