@@ -1,6 +1,7 @@
 package chessai
 
 import (
+	"github.com/gophergala/go-llama/chessverifier"
 	"github.com/gophergala/go-llama/intchess"
 	"golang.org/x/net/websocket"
 	"log"
@@ -15,7 +16,7 @@ type AI struct {
 	User             *intchess.User
 	sendMessages     chan string
 	receivedMessages chan string
-	Solve            func(*[][]byte) []byte
+	Solve            func(chessverifier.GameState) []byte
 }
 
 var ai AI

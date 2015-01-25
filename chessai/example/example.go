@@ -20,7 +20,7 @@ func main() {
 	chessai.Run(addr, host) //this is a blocking call
 }
 
-func MySolver(inputs *[][]byte) []byte {
+func MySolver(game chessverifier.GameState) []byte {
 	//best solver ever
-	return (*inputs)[0]
+	return nil
 }
