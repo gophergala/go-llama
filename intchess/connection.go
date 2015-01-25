@@ -236,3 +236,7 @@ func (c *Connection) SendRejected(Type string, rejectReason string) {
 	serverMsg, _ := json.Marshal(serverOut)
 	c.sendMessages <- string(serverMsg)
 }
+
+func (c *Connection) SendGameOver() {
+
+}

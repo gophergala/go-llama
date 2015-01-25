@@ -158,6 +158,7 @@ func (c *ChessGame) AttemptMove(moveStr string, moverConn *Connection) error {
 	//first, make sure that it's the right player moving
 	if len(c.GameMoves)%2 == 0 && moverConn != c.WhiteConn || len(c.GameMoves)%2 == 1 && moverConn != c.BlackConn {
 		//wrong player attempted to move!
+		c.SendMoveUpdate() //allows for redrawing
 		return errors.New("not your turn")
 	}
 	//now verify that the move is allowable
@@ -175,6 +176,7 @@ func (c *ChessGame) AttemptMove(moveStr string, moverConn *Connection) error {
 	//check if this move is valid'
 	valid := chessverifier.IsMoveValid(&curGameState, &curMove)
 	if !valid {
+		c.SendMoveUpdate() //allows for redrawing
 		return errors.New("Invalid move attempted")
 	}
 
@@ -182,8 +184,45 @@ func (c *ChessGame) AttemptMove(moveStr string, moverConn *Connection) error {
 	c.GameMoves = append(c.GameMoves, GameMove{Move: moveStr})
 	c.BoardStatus = curGameState.Board
 
+	if len(c.GameMoves)%2 == 0 {
+		//that was the end of BLACK's turn
+		mate, check := chessverifier.IsMate(&curGameState, true)
+		if mate == true && check == true {
+			//black just won
+			c.GameFinished(true, false)
+		} else if mate == true && check == false {
+			//stalemate
+			c.GameFinished(false, false)
+		}
+
+	} else {
+		//that was the end of WHITE's turn
+		mate, check := chessverifier.IsMate(&curGameState, false)
+		if mate == true && check == true {
+			//white just won
+			c.GameFinished(true, true)
+		} else if mate == true && check == false {
+			//stalemate
+			c.GameFinished(false, false)
+		}
+	}
+
 	c.SendMoveUpdate()
 	return nil
+}
+
+func (c *ChessGame) GameFinished(notStalemate bool, whiteWon bool) {
+	if notStalemate == false {
+		c.Status = "stalemate"
+		c.EndGame()
+	}
+	if whiteWon == true {
+		c.WhiteConn.User.WonGame(c, c.BlackConn.User)
+	} else {
+		c.BlackConn.User.WonGame(c, c.WhiteConn.User)
+	}
+	c.WhiteConn.SendGameOver()
+	c.BlackConn.SendGameOver()
 }
 
 func (c *ChessGame) Chat(messageId int, sender *Connection) {
