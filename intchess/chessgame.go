@@ -239,3 +239,20 @@ func (c *ChessGame) Chat(messageId int, sender *Connection) {
 		c.BlackConn.SendChat(messageId, sender.User)
 	}
 }
+
+func (c *ChessGame) GetValidMoves(loc string) [][]byte {
+	//now verify that the move is allowable
+	//first, we need to convert all our moves from []GameMove to [][]Byte
+	bMoves := make([][]byte, len(c.GameMoves))
+	for index, move := range c.GameMoves {
+		bMoves[index] = []byte(move.Move)
+	}
+
+	//get the current board state
+	curGameState := chessverifier.GetBoardState(&bMoves)
+	x, y := chessverifier.GetSquareIndices([]byte(loc))
+	if x == -1 {
+		return nil
+	}
+	return chessverifier.GetValidMoves(&curGameState, x, y)
+}

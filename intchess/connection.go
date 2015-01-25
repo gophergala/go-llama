@@ -122,6 +122,26 @@ func (c *Connection) DecodeMessage(message []byte) {
 		} else {
 			c.SendRejected("chat_rejected", "json error: "+err.Error())
 		}
+	case "game_get_valid_moves_request":
+		var r APIGameGetValidMovesRequest
+		if err := json.Unmarshal(message, &r); err == nil {
+			if c.GameIndex != nil {
+				if _, ok := Games[*c.GameIndex]; ok {
+					if len([]byte(r.Location)) == 2 {
+						c.SendValidMoves(Games[*c.GameIndex].GetValidMoves(r.Location))
+					} else {
+						c.SendRejected("game_get_valid_moves_rejected", "bad request - length of string not 2")
+					}
+				} else {
+					c.GameIndex = nil
+					c.SendRejected("game_get_valid_moves_rejected", "not in game")
+				}
+			} else {
+				c.SendRejected("game_get_valid_moves_rejected", "not in game")
+			}
+		} else {
+			c.SendRejected("game_get_valid_moves_rejected", "json error: "+err.Error())
+		}
 	default:
 		fmt.Println("I'm not familiar with type " + t.Type)
 	}
@@ -241,6 +261,15 @@ func (c *Connection) SendRejected(Type string, rejectReason string) {
 	serverOut := APIGameResponse{
 		Type:     Type,
 		Response: rejectReason,
+	}
+	serverMsg, _ := json.Marshal(serverOut)
+	c.sendMessages <- string(serverMsg)
+}
+
+func (c *Connection) SendValidMoves(moves [][]byte) {
+	serverOut := APIGameGetValidMovesResponse{
+		Type:  "game_get_valid_moves_response",
+		Moves: moves,
 	}
 	serverMsg, _ := json.Marshal(serverOut)
 	c.sendMessages <- string(serverMsg)

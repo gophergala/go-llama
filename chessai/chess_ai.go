@@ -60,6 +60,7 @@ type AI struct {
 	receivedMessages chan string
 	Solve            func(chessverifier.GameState) []byte
 	Chat             func(int)
+	CurrentlyWhite   bool
 }
 
 var ai AI
@@ -249,8 +250,17 @@ func (a *AI) SendGameAccept() {
 	ai.sendMessages <- string(msg)
 }
 
+func IsWhite() bool {
+	return ai.CurrentlyWhite
+}
+
 //Process move function, redirect request to developer's solver function and form request from their move
 func (a *AI) processMove(g *intchess.ChessGame) {
+	if g.WhitePlayer.Username == a.User.Username {
+		a.CurrentlyWhite = true
+	} else {
+		a.CurrentlyWhite = false
+	}
 	if len(g.GameMoves)%2 == 0 && g.WhitePlayer.Username == a.User.Username || len(g.GameMoves)%2 == 1 && g.BlackPlayer.Username == a.User.Username {
 		//is yer turn
 

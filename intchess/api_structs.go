@@ -82,3 +82,19 @@ type APIGameChat struct {
 	From      *User  `json:"from"`
 	MessageId int    `json:"message_id"`
 }
+
+/*
+{
+"type":"game_get_valid_moves_request",
+"move":"a2"
+}
+*/
+type APIGameGetValidMovesRequest struct {
+	Type     string `json:"type"`
+	Location string `json:"location"`
+}
+
+type APIGameGetValidMovesResponse struct {
+	Type  string   `json:"type"`
+	Moves [][]byte `json:"moves"`
+}
