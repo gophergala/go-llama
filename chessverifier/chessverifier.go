@@ -87,7 +87,7 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 			if canLand {
 				var newMove = getMove([2]int{x, y}, [2]int{x + moveDiffs[i][0], y + moveDiffs[i][1]})
 				var testGame = testMove(*game, &newMove)
-				if !isCheck(&testGame, white) {
+				if !IsCheck(&testGame, white) {
 					validMoves = append(validMoves, newMove)
 				}
 			}
@@ -124,14 +124,14 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 			if canLand {
 				var newMove = getMove([2]int{x, y}, [2]int{x + moveDiffs[i][0], y + moveDiffs[i][1]})
 				var testGame = testMove(*game, &newMove)
-				if !isCheck(&testGame, white) {
+				if !IsCheck(&testGame, white) {
 					validMoves = append(validMoves, newMove)
 				}
 			}
 		}
 
 		//check for castling
-		if !isCheck(game, white) {
+		if !IsCheck(game, white) {
 			var king, left, right bool //left and right for each of the rooks
 			var row byte
 			var rownum int
@@ -157,18 +157,18 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 			if king {
 				if left && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
 					var testGame = testMove(*game, &[]byte{'e', row, '-', 'd', row})
-					if !isCheck(&testGame, white) {
+					if !IsCheck(&testGame, white) {
 						MakeMove(&testGame, &[]byte{'e', row, '-', 'c', row})
-						if !isCheck(&testGame, white) {
+						if !IsCheck(&testGame, white) {
 							validMoves = append(validMoves, []byte{'e', row, '-', 'c', row})
 						}
 					}
 				}
 				if right && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
 					var testGame = testMove(*game, &[]byte{'e', row, '-', 'f', row})
-					if !isCheck(&testGame, white) {
+					if !IsCheck(&testGame, white) {
 						MakeMove(&testGame, &[]byte{'e', row, '-', 'g', row})
-						if !isCheck(&testGame, white) {
+						if !IsCheck(&testGame, white) {
 							validMoves = append(validMoves, []byte{'e', row, '-', 'g', row})
 						}
 					}
@@ -195,7 +195,7 @@ func moveDirection(game *GameState, x, y int, direction [2]int, white bool) (val
 	return validMoves
 }
 
-func isCheck(game *GameState, white bool) bool {
+func IsCheck(game *GameState, white bool) bool {
 	var pawnDirection = 1 //this is for finding attacking pawns
 	if !white {
 		pawnDirection = -1
@@ -255,9 +255,9 @@ func isCheck(game *GameState, white bool) bool {
 	return false
 }
 
-func isMate(game *GameState, white bool) (mate, check bool) {
+func IsMate(game *GameState, white bool) (mate, check bool) {
 	if len(GetAllValidMoves(game, white)) == 0 {
-		if isCheck(game, white) {
+		if IsCheck(game, white) {
 			return true, true
 		} else {
 			return true, false
@@ -265,6 +265,10 @@ func isMate(game *GameState, white bool) (mate, check bool) {
 	}
 	return false, false
 }
+
+// func canOnpassant(game *GameState, x, y int) (left, right bool) {
+
+// }
 
 //used for testing if a move will place the king in check so that functions can be passed only the board state after the move
 func testMove(game GameState, move *[]byte) GameState {
@@ -331,12 +335,12 @@ func GetBoardState(moveList *[][]byte) GameState {
 //note that this does not check if the move is valid because it causes and infinite loop XD
 //you therefor need to make sure the move is allowed before trying it
 func MakeMove(game *GameState, move *[]byte) { //@todo add on passant and castling and add the move to the move list, also add ugrading pawns
-	// if IsMoveValid(game, move) {
 	ox, oy := getSquareIndices((*move)[0:2])
 	nx, ny := getSquareIndices((*move)[3:5])
 	var piece = game.Board[ox][oy]
 	game.Board[ox][oy] = []byte{}
 	game.Board[nx][ny] = piece
+	game.MoveList = append(game.MoveList, *move)
 	// }
 }
 
