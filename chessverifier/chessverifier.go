@@ -1,8 +1,9 @@
 package chessverifier
 
-// import (
-// 	"fmt"
-// )
+import (
+	// "encoding/json"
+	"fmt"
+)
 
 type BoardState [8][8][]byte
 type GameState struct {
@@ -23,32 +24,42 @@ func NewGame() GameState {
 
 func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 	var piece = game.board[x][y]
+	fmt.Println(string(piece))
 	if len(piece) == 0 {
 		return [][]byte{}
 	}
 	var newMove = []byte{}
-	var white = piece[0] == 'w'
+	var white = piece[0] == 'W'
 	switch piece[1] { //make sure the king is not in check before anything else
-	case 'P':
-		if white {
-			newMove = getMove([2]int{x, y}, [2]int{x, y + 1})
-		} else {
-			newMove = getMove([2]int{x, y}, [2]int{x, y - 1})
+	case 'P': //@todo add on passant
+		var ymove = 1
+		if !white {
+			ymove = -1
 		}
-		validMoves = append(validMoves, newMove)
+		var newSquare = [2]int{x, y + ymove}
+		var free, taking = canLand(game, newSquare, white)
+		if free && !taking {
+			newMove = getMove([2]int{x, y}, newSquare)
+			validMoves = append(validMoves, newMove)
+		}
+		newSquare[0] = newSquare[0] + 1
+		free, taking = canLand(game, newSquare, white)
+		if free && taking {
+			newMove = getMove([2]int{x, y}, newSquare)
+			validMoves = append(validMoves, newMove)
+		}
+		newSquare[0] = newSquare[0] - 2
+		free, taking = canLand(game, newSquare, white)
+		if free && !taking {
+			newMove = getMove([2]int{x, y}, newSquare)
+			validMoves = append(validMoves, newMove)
+		}
 
 	case 'R':
-		for i := 0; i < 8; i++ { //right
-			var canLand, taking = canLand(game, [2]int{x + i, y}, white)
-			if canLand {
-				validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x + i, y}))
-				if taking {
-					break
-				}
-			} else {
-				break
-			}
-		}
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 0}, white)...)  //right
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 0}, white)...) //left
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, 1}, white)...)  //up
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...) //down
 
 	case 'N':
 		var moveDiffs [8][2]int = [8][2]int{[2]int{2, 1}, [2]int{2, -1}, [2]int{1, 2},
@@ -66,8 +77,20 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		}
 
 	case 'B':
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 1}, white)...)   //up-right
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, -1}, white)...) //down-left
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, -1}, white)...)  //down-right
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 1}, white)...)  //down-left
 
 	case 'Q':
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 0}, white)...)   //right
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 0}, white)...)  //left
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, 1}, white)...)   //up
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...)  //down
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 1}, white)...)   //up-right
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, -1}, white)...) //down-left
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, -1}, white)...)  //down-right
+		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 1}, white)...)  //down-left
 
 	case 'K':
 		var moveDiffs [8][2]int = [8][2]int{[2]int{1, 0}, [2]int{1, 1}, [2]int{0, 1},
@@ -85,7 +108,22 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		}
 	}
 
-	return [][]byte{[]byte{'a', '1', '-', 'b', '2'}}
+	return
+}
+
+func moveDirection(game *GameState, x, y int, direction [2]int, white bool) (validMoves [][]byte) {
+	for i := 1; i < 8; i++ {
+		var canLand, taking = canLand(game, [2]int{x + (direction[0] * i), y + (direction[1] * i)}, white)
+		if canLand {
+			validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x + i, y}))
+			if taking {
+				break
+			}
+		} else {
+			break
+		}
+	}
+	return validMoves
 }
 
 func isCheck(game *GameState, white bool) bool {
@@ -101,15 +139,16 @@ func testMove(game GameState, move *[]byte) GameState {
 //white is whether or not the current player is white for handling taking
 //if canLand is false taking sould be ignored (it will always be false)
 func canLand(game *GameState, square [2]int, white bool) (canLand, taking bool) {
-	var piece = game.board[square[0]][square[1]]
-	var occupied bool = len(piece) != 0
 	if !(square[0] >= 0 && square[0] <= 7 && square[1] >= 0 && square[1] <= 7) { //is the destination off the board?
 		return false, false
 	}
+	var piece = game.board[square[0]][square[1]]
+	var occupied bool = len(piece) != 0
+
 	if !occupied { //on the board and empty
 		return true, false
 	}
-	if (piece[0] == 'w') == white { //occupied with a piece the same colour as the piece being moved
+	if (piece[0] == 'W') == white { //occupied with a piece the same colour as the piece being moved
 		return false, false
 	}
 	return true, true //occupied with an oponent's piece
@@ -117,7 +156,7 @@ func canLand(game *GameState, square [2]int, white bool) (canLand, taking bool) 
 
 //do the line of formatting to save typing and tidy the code
 func getMove(source [2]int, dest [2]int) []byte {
-	return []byte{byte(source[0] + '1'), byte(source[1] + 'a'), '-', byte(dest[0] + '1'), byte(dest[1] + 'a')}
+	return []byte{byte(source[0] + 'a'), byte(source[1] + '1'), '-', byte(dest[0] + 'a'), byte(dest[1] + '1')}
 }
 
 func GetAllValidMoves(game *GameState) (validMoves [][]byte) {
@@ -151,15 +190,16 @@ func GetBoardState(moveList *[][]byte) GameState {
 }
 
 //This function is used to apply a move (eg "a2-a4") to the board
-//it will verify first if the move is valid
+//note that this does not check if the move is valid because it causes and infinite loop XD
+//you therefor need to make sure the move is allowed before trying it
 func MakeMove(game *GameState, move *[]byte) {
-	if IsMoveValid(game, move) {
-		ox, oy := getSquareIndices((*move)[0:2])
-		nx, ny := getSquareIndices((*move)[3:5])
-		var piece = game.board[ox][oy]
-		game.board[ox][oy] = []byte{}
-		game.board[nx][ny] = piece
-	}
+	// if IsMoveValid(game, move) {
+	ox, oy := getSquareIndices((*move)[0:2])
+	nx, ny := getSquareIndices((*move)[3:5])
+	var piece = game.board[ox][oy]
+	game.board[ox][oy] = []byte{}
+	game.board[nx][ny] = piece
+	// }
 }
 
 //This function is used to convert a piece location in Algebraic notation
@@ -195,4 +235,16 @@ var startBoardState BoardState = BoardState{
 	[8][]byte{[]byte{'W', 'B', '3'}, []byte{'W', 'P', '6'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '6'}, []byte{'B', 'B', '2'}},
 	[8][]byte{[]byte{'W', 'N', '3'}, []byte{'W', 'P', '7'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '7'}, []byte{'B', 'N', '2'}},
 	[8][]byte{[]byte{'W', 'R', '2'}, []byte{'W', 'P', '8'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '8'}, []byte{'B', 'R', '2'}},
+}
+
+func Runtest() {
+	var game = NewGame()
+	game.board[1][0] = []byte{}
+	game.board[2][0] = []byte{}
+	// var board, _ = json.MarshalIndent(game.board, "", "  ")
+	// fmt.Println(string(board))
+	var moveList = GetValidMoves(&game, 0, 0)
+	for _, move := range moveList {
+		fmt.Println(string(move))
+	}
 }
