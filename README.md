@@ -25,6 +25,14 @@ The Internet Chess server depends on a number of publically available open-sourc
 
 The details of the API can be found in /static/chessapi.html
 
+___
+##Screenshots
+![signin](https://raw.github.com/gophergala/go-llama/master/screenshots/sign_in.png)
+
+![game_offer](https://raw.github.com/gophergala/go-llama/master/screenshots/game_offer.png)
+
+![in_game](https://raw.github.com/gophergala/go-llama/master/screenshots/in_game.png)
+
 
 ___
 ##Google Cloud Configuration
@@ -38,4 +46,5 @@ The Internet chess environment is set up utilising multiple resources:
 
 ___
 ##Running locally
+
 
