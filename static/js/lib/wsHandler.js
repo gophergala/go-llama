@@ -60,6 +60,10 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 				wsHandler.trigger('game_chat', data.from, data.message_id);
 				break;
 
+			case 'game_over':
+				wsHandler.trigger('game_over', data.game);
+				break;
+
 
 			default:
 				//console.log('Unknown data type', data.type, data);

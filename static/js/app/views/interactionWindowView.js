@@ -193,6 +193,10 @@ define([
 			$("#chat-history").scrollTop($('#chat-history').prop("scrollHeight"));
 		});
 
+		wsHandler.on('game_over', function(game){
+			return changeView(loadingTpl, {msg: 'Waiting for game'});
+		});
+
 
 		return iw;
 	}

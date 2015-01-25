@@ -24,6 +24,7 @@ define(
 			initialize:function(){
 				_.bindAll(this, 'updateBoard', 'columnLoop', 'rowLoop');
 				wsHandler.on('game_move_update', this.updateBoard);
+				wsHandler.on('game_over', this.gameOver);
 
 				this.blackPieces = new PiecesCol({'color':'black'});
 				this.whitePieces = new PiecesCol({'color':'white'});
@@ -69,6 +70,31 @@ define(
 
 				boardStatus = game.board_status;
 				_.each(boardStatus, this.columnLoop);
+			},
+			gameOver: function(game){
+
+				var text = '';
+
+				switch(game.game_status){
+					case 'victory':
+						if(wsHandler.user.user_id == game.winner.user_id){
+							text += 'You win. Your rank changed by '+game.winner.rank_change;
+						}else{
+							text += 'You loose. Your rank changed by '+game.winner.rank_change;
+						}
+						break;
+
+					case 'stalemate':
+						text += 'Stalemate!';
+						break;
+
+					case 'disconnection':
+						text += 'The other player disconnected.';
+						break;
+
+				}
+
+				$('#currentColor').html('<p>' + text + '</p>');
 			},
 			columnLoop:function(column, colnum){
 				this.columnNumber = colnum + 1;
