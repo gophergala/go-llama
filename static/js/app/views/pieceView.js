@@ -12,13 +12,17 @@ define([
 				_.bindAll(this, 'revert');
 			},
 			onRender:function(){
-				this.$el.draggable({
-					snap: 'td',
-					snapModel:'inner',
-					opacity: 0.8,
-					distance: 10,
-					revert:this.revert
-				});
+				var color = (this.model.get('color') === window.whichColor);
+				var user = (wsHandler.user.username === window.WhosMove);
+				if(user && color){
+					this.$el.draggable({
+						snap: 'td',
+						snapModel:'inner',
+						opacity: 0.8,
+						distance: 10,
+						revert:this.revert
+					});
+				}
 
 				this.$el.css('position','absolute');
 				loc = this.model.get('location');

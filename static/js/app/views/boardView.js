@@ -42,6 +42,22 @@ define(
 				this.whitePieces.reset();
 
 				console.log(game);
+				console.log(wsHandler.user);
+				if(game.game_moves){
+					if(game.game_moves.length % 2 == 0){
+						window.whichColor = 'white';
+						window.WhosMove = game.white.username;
+					}
+					else {
+						window.whichColor = 'black';
+						window.WhosMove = game.black.username;
+					}
+				}
+				else {
+					window.whichColor = 'white';
+					window.WhosMove = game.white.username;
+				}
+
 				boardStatus = game.board_status;
 				_.each(boardStatus, this.columnLoop);
 			},
@@ -53,11 +69,11 @@ define(
 				this.rowNumber = rownum + 1;
 				// console.log(colnum);
 				// console.log(rownum);
-				console.log(this.columnNumber);
-				console.log(this.rowNumber);
-				console.log(cell);
+				// console.log(this.columnNumber);
+				// console.log(this.rowNumber);
+				// console.log(cell);
 				var decodedCell = window.atob(cell);
-				console.log(decodedCell);
+				// console.log(decodedCell);
 
 				var colorChar = decodedCell.charAt(0);
 				var pieceChar = decodedCell.charAt(1);
