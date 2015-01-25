@@ -22,7 +22,7 @@ define(
 			},
 			template:_.template(boardTemplate),
 			initialize:function(){
-				_.bindAll(this, 'createPieces', 'createSet', 'updateBoard', 'columnLoop', 'rowLoop');
+				_.bindAll(this, 'updateBoard', 'columnLoop', 'rowLoop');
 				wsHandler.on('game_move_update', this.updateBoard);
 
 				this.blackPieces = new PiecesCol({'color':'black'});
