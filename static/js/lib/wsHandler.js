@@ -23,10 +23,6 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 
 	wsHandler.on('closed', function(msg){
 		wsHandler.connected = false;
-
-		//console.log('starting auth');
-		//wsHandler.authenticate('test', 'test');
-		
 	});
 
 
@@ -64,6 +60,10 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 				wsHandler.trigger('game_over', data.game);
 				break;
 
+			case 'game_get_valid_moves_response':
+				wsHandler.trigger('game_get_valid_moves_response', data.moves);
+				break;
+
 
 			default:
 				//console.log('Unknown data type', data.type, data);
@@ -89,9 +89,12 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 	};
 
 	wsHandler.sendChat = function(chatId){
-		console.log({type: 'game_chat_request', message_id: parseInt(chatId)});
 		wsHandler.socket.sendJSON({type: 'game_chat_request', message_id: parseInt(chatId)});
-	}
+	};
+
+	wsHandler.getValidMoves = function(move){
+		wsHandler.socket.sendJSON({type: 'game_get_valid_moves_request', move: move});
+	};
 
 
 	wsHandler.on('all', function(){
