@@ -59,23 +59,25 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		free, taking = canLand(game, [2]int{x + 1, y + ymove}, white)
 		if free && !taking {
 			var onpassantRight = getMove([2]int{x + 1, y + (2 * ymove)}, [2]int{x + 1, y})
-			if moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassantRight) {
+			if len(game.MoveList) > 1 && moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassantRight) {
 				validMoves = append(validMoves, onpassantRight)
 			}
 		}
 		free, taking = canLand(game, [2]int{x - 1, y + ymove}, white)
 		if free && !taking {
 			var onpassantRight = getMove([2]int{x - 1, y + (2 * ymove)}, [2]int{x + 1, y})
-			if moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassantRight) {
+			if len(game.MoveList) > 1 && moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassantRight) {
 				validMoves = append(validMoves, onpassantRight)
 			}
 		}
 
 	case 'R':
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 0}, white)...)  //right
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 0}, white)...) //left
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, 1}, white)...)  //up
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...) //down
+		for _, direction := range squareDirections {
+			validMoves = append(validMoves, moveDirection(game, x, y, direction, white)...)
+		}
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 0}, white)...) //left
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, 1}, white)...)  //up
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...) //down
 
 	case 'N':
 		var moveDiffs [8][2]int = [8][2]int{[2]int{2, 1}, [2]int{2, -1}, [2]int{1, 2},
@@ -93,20 +95,26 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		}
 
 	case 'B':
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 1}, white)...)   //up-right
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, -1}, white)...) //down-left
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, -1}, white)...)  //down-right
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 1}, white)...)  //down-left
+		for _, direction := range diagonalDirections {
+			validMoves = append(validMoves, moveDirection(game, x, y, direction, white)...)
+		}
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 1}, white)...)   //up-right
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, -1}, white)...) //down-left
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, -1}, white)...)  //down-right
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 1}, white)...)  //down-left
 
 	case 'Q':
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 0}, white)...)   //right
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 0}, white)...)  //left
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, 1}, white)...)   //up
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...)  //down
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 1}, white)...)   //up-right
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, -1}, white)...) //down-left
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, -1}, white)...)  //down-right
-		validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 1}, white)...)  //down-left
+		for _, direction := range append(squareDirections, diagonalDirections...) {
+			validMoves = append(validMoves, moveDirection(game, x, y, direction, white)...)
+		}
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 0}, white)...)   //right
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 0}, white)...)  //left
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, 1}, white)...)   //up
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...)  //down
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 1}, white)...)   //up-right
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, -1}, white)...) //down-left
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, -1}, white)...)  //down-right
+		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 1}, white)...)  //down-left
 
 	case 'K':
 		var moveDiffs [8][2]int = [8][2]int{[2]int{1, 0}, [2]int{1, 1}, [2]int{0, 1},
@@ -189,8 +197,31 @@ func moveDirection(game *GameState, x, y int, direction [2]int, white bool) (val
 }
 
 func isCheck(game *GameState, white bool) bool {
+	// var pawnDirection = 1
+	// if !white {
+	// 	pawnDirection = -1
+	// }
+	// for _, row := range game.Board {
+	// 	for _, cell := range row {
+
+	// 	}
+	// }
+	var x, y int
+	for _, direction := range squareDirections {
+		for i := 1; i < 8; i++ {
+			var canLand, taking = canLand(game, [2]int{x + (direction[0] * i), y + (direction[1] * i)}, white)
+			if taking {
+				// validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x + i, y}))
+
+			} else if !canLand {
+				break
+			}
+		}
+	}
 	return false
 }
+
+// func isCheckMate or stalemate
 
 //used for testing if a move will place the king in check so that functions can be passed only the board state after the move
 func testMove(game GameState, move *[]byte) GameState {
@@ -254,7 +285,7 @@ func GetBoardState(moveList *[][]byte) GameState {
 //This function is used to apply a move (eg "a2-a4") to the board
 //note that this does not check if the move is valid because it causes and infinite loop XD
 //you therefor need to make sure the move is allowed before trying it
-func MakeMove(game *GameState, move *[]byte) { //@todo add on passant and castling and add the move to the move list
+func MakeMove(game *GameState, move *[]byte) { //@todo add on passant and castling and add the move to the move list, also add ugrading pawns
 	// if IsMoveValid(game, move) {
 	ox, oy := getSquareIndices((*move)[0:2])
 	nx, ny := getSquareIndices((*move)[3:5])
@@ -298,6 +329,9 @@ var StartBoardState BoardState = BoardState{
 	[8][]byte{[]byte{'W', 'N', '3'}, []byte{'W', 'P', '7'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '7'}, []byte{'B', 'N', '2'}},
 	[8][]byte{[]byte{'W', 'R', '2'}, []byte{'W', 'P', '8'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '8'}, []byte{'B', 'R', '2'}},
 }
+
+var diagonalDirections = [][2]int{[2]int{1, 1}, [2]int{1, -1}, [2]int{-1, -1}, [2]int{-1, 1}}
+var squareDirections = [][2]int{[2]int{0, 1}, [2]int{0, -1}, [2]int{1, 0}, [2]int{-1, 0}}
 
 func Runtest() {
 	var game = NewGame()
