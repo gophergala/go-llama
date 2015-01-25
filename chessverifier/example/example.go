@@ -1,11 +1,11 @@
 package main
 
-import "github.com/gophergala/go-llama/chessverifier"
-
 import (
-	"fmt"
+	// "fmt"
+	"github.com/gophergala/go-llama/chessverifier"
 )
 
 func main() {
+	chessverifier.Runtest()
 
 }
