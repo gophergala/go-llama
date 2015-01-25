@@ -1,8 +1,8 @@
 define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbone) {
 
 	// var wsUrl = 'ws://192.168.1.25:800/ws';
-	var wsUrl = 'ws://' + window.hostname + ':' + window.port + '/ws';
-	alert(wsUrl);
+	var wsUrl = 'ws://' + window.location.hostname + ':' + window.location.port + '/ws';
+	// alert(wsUrl);
 
 	var wsHandler = {};
 
