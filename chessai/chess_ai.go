@@ -1,7 +1,6 @@
-package intchessai
+package chessai
 
 import (
-	"github.com/gophergala/go-llama/chessverifier"
 	"github.com/gophergala/go-llama/intchess"
 	"golang.org/x/net/websocket"
 	"log"
@@ -16,16 +15,23 @@ type AI struct {
 	User             *intchess.User
 	sendMessages     chan string
 	receivedMessages chan string
-	Solver           AI_Solver
+	Solve            func(*[][]byte) []byte
 }
 
-type AI_Solver interface {
-	DecideMove(*[][]byte) []byte
+var ai AI
+
+func Make(PropUsername string, PropPassword string, VersesAi bool, FirstUse bool, Solve func(*[][]byte) []byte) {
+	ai.PropPassword = PropPassword
+	ai.PropUsername = PropUsername
+	ai.FirstUse = FirstUse
+	ai.Solve = Solve
+	ai.sendMessages = make(chan string, 256)
+	ai.receivedMessages = make(chan string, 256)
 }
 
 //addr is url of server
 //host can be http://localhost
-func (a *AI) Run(addr string, host string) {
+func Run(addr string, host string) {
 
 	ws, err := websocket.Dial(addr, "", host)
 
@@ -33,9 +39,14 @@ func (a *AI) Run(addr string, host string) {
 		log.Fatal(err)
 	}
 
-	go a.Reader()
-	go a.Writer()
-	a.Runner()
+	ai.ws = ws
+
+	defer close(ai.sendMessages)
+	defer close(ai.receivedMessages)
+
+	go ai.Reader()
+	go ai.Writer()
+	ai.Runner()
 }
 
 func (a *AI) Reader() {
@@ -69,10 +80,10 @@ Loop:
 }
 
 func (a *AI) Runner() {
-	if first_use {
+	if a.FirstUse {
 		a.attemptCreateAndAuthenticate(a.PropUsername, a.PropPassword, a.VersesAi)
 	} else {
-		a.attemptAuthentication(username, proposed_password)
+		a.attemptAuthentication(a.PropUsername, a.PropPassword)
 	}
 	for {
 		for msg := range a.receivedMessages {
@@ -95,9 +106,5 @@ func (a *AI) attemptCreateAndAuthenticate(username string, proposed_password str
 }
 
 func (a *AI) DecodeMessage(message []byte) {
-
-}
-
-func AuthenticateUser(user *User) {
 
 }
