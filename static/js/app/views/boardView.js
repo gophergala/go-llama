@@ -43,19 +43,28 @@ define(
 
 				console.log(game);
 				console.log(wsHandler.user);
+				if(wsHandler.user.username === game.white.username){
+					window.YourColor = 'white';
+				}
+				else {
+					window.YourColor = 'black';
+				}
 				if(game.game_moves){
 					if(game.game_moves.length % 2 == 0){
 						window.whichColor = 'white';
 						window.WhosMove = game.white.username;
+						$('#currentColor').html('<p>' + game.white.username + '`s turn! (white)</p>'); 
 					}
 					else {
 						window.whichColor = 'black';
 						window.WhosMove = game.black.username;
+						$('#currentColor').html('<p>' + game.black.username + '`s turn! (black)</p>'); 
 					}
 				}
 				else {
 					window.whichColor = 'white';
 					window.WhosMove = game.white.username;
+					$('#currentColor').html('<p>' + game.white.username + '`s turn! (white)</p>'); 
 				}
 
 				boardStatus = game.board_status;
@@ -67,6 +76,9 @@ define(
 			},
 			rowLoop:function(cell, rownum){
 				this.rowNumber = rownum + 1;
+				if(window.YourColor === 'black'){
+					this.rowNumber = 9 - this.rowNumber;	
+				}
 				// console.log(colnum);
 				// console.log(rownum);
 				// console.log(this.columnNumber);

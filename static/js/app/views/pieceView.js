@@ -9,7 +9,7 @@ define([
 			className:'piece',
 			template:_.template(PieceTemplate),
 			initialize:function(){
-				_.bindAll(this, 'revert');
+				_.bindAll(this, 'revert', 'startDrag');
 			},
 			onRender:function(){
 				var color = (this.model.get('color') === window.whichColor);
@@ -20,13 +20,17 @@ define([
 						snapModel:'inner',
 						opacity: 0.8,
 						distance: 10,
-						revert:this.revert
+						revert:this.revert,
+						start:this.startDrag
 					});
 				}
 
 				this.$el.css('position','absolute');
 				loc = this.model.get('location');
 				this.$el.offset({left: loc[0] * 52, top: (9 - loc[1]) * 52});
+			},
+			startDrag:function(event, ui){
+				console.log(event);
 			},
 			revert:function(socketObj){
 				if(socketObj){
@@ -44,16 +48,19 @@ define([
 					this.model.set('location', loc);
 
 					var moveString = oldchr + oldloc[1] + '-' + newchr + loc[1];
-					$('#movelog').append(moveString + '<br>');
+					if(window.YourColor === 'black'){
+						var moveString = oldchr + (9 - oldloc[1]) + '-' + newchr + (9 - loc[1]);	
+					}
+					// $('#movelog').append(moveString + '<br>');
 
 					wsHandler.moveRequest(moveString);
 
-					console.log('success!');
+					// console.log('success!');
 					return false;
 				}
 				else {
 					// drag fail
-					console.log('fail!');
+					// console.log('fail!');
 					return true;
 				}
 			}

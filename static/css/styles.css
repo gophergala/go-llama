@@ -1,6 +1,7 @@
 body {
 	margin: 0;
 	padding: 0;
+	background-color: #CCCCCC;
 }
 tbody {
 	top:50px;
@@ -27,14 +28,17 @@ td.white {
 
 #board-div {
 	float: left;
-	margin-left: 10em;
+	margin-left: 1em;
+	/*margin-top: 20px;*/
+	position:relative;
+	width:500px;
 }
 
 #interaction-window {
-	float: right;
+	float: left;
 	margin-top: 20px;
 	margin-right: 20px;
-	width: 600px;
+	width: 250px;
 }
 
 td.highlight {
@@ -46,3 +50,40 @@ td.highlight {
 	overflow-y: scroll;
 	height: 400px;
 }
+
+#currentColor {
+	/*position: relative;*/
+	float: right;
+	margin-right: 20px;
+	/*margin-top: 30px;*/
+	/*width: 600px;*/
+}
+
+#container {
+	margin: 50px;
+	margin-top: 5px;
+	margin: 0 auto;
+	background-color: white;
+	height: 35em;
+	width: 68em;
+}
+
+#header {
+	font: helvetica;
+	font-size: 20pt;
+	text-align: center;
+	margin-top: 15px;
+	padding: 10px;
+	/*position: absolute;*/
+	background-color: white;
+	border-bottom: 1px solid black; 
+}
+
+label {
+	padding: 5px;
+}
+
+/*#interaction-window img {
+	position: relative;
+	left: -25%;
+}*/
