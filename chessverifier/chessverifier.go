@@ -58,9 +58,15 @@ func GetValidMoves(game *GameState, x, y int) [][]byte {
 		}
 
 		if white && y == 1 {
-			validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x, y + 2}))
+			var free, taking = canOnpassant(game, x, y+2, white)
+			if free && !taking {
+				validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x, y + 2}))
+			}
 		} else if !white && y == 6 {
-			validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x, y - 2}))
+			var free, taking = canOnpassant(game, x, y-2, white)
+			if free && !taking {
+				validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x, y - 2}))
+			}
 		}
 
 		//checking for on passant, right then left
@@ -122,7 +128,7 @@ func GetValidMoves(game *GameState, x, y int) [][]byte {
 		//check for castling
 		if !IsCheck(game, white) {
 			fmt.Println("castling")
-			var king, left, right bool //left and right for each of the rooks
+			var king, left, right bool = true, true, true //left and right for each of the rooks
 			var row byte
 			var rownum int
 			if white {
@@ -133,31 +139,38 @@ func GetValidMoves(game *GameState, x, y int) [][]byte {
 				rownum = 7
 			}
 			for _, move := range game.MoveList {
+				fmt.Println(string(move))
 				if move[1] == row {
 					if move[0] == 'e' && move[1] == row {
 						king = false
+						fmt.Println("king")
 						break
 					} else if move[0] == 'a' && move[1] == row && left {
+						fmt.Println("left")
 						left = false
 					} else if move[0] == 'h' && move[1] == row && right {
+						fmt.Println("right")
 						right = false
 					}
 				}
 			}
+			fmt.Println("can Castle")
 			if king {
 				if left && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
+					fmt.Println("row left clear")
 					var testGame = testMove(*game, &[]byte{'e', row, '-', 'd', row})
 					if !IsCheck(&testGame, white) {
-						MakeMove(&testGame, &[]byte{'e', row, '-', 'c', row})
+						MakeMove(&testGame, &[]byte{'d', row, '-', 'c', row})
 						if !IsCheck(&testGame, white) {
 							validMoves = append(validMoves, []byte{'e', row, '-', 'c', row})
 						}
 					}
 				}
-				if right && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
+				if right && len(game.Board[5][rownum]) == 0 && len(game.Board[6][rownum]) == 0 {
+					fmt.Println("row right clear")
 					var testGame = testMove(*game, &[]byte{'e', row, '-', 'f', row})
 					if !IsCheck(&testGame, white) {
-						MakeMove(&testGame, &[]byte{'e', row, '-', 'g', row})
+						MakeMove(&testGame, &[]byte{'f', row, '-', 'g', row})
 						if !IsCheck(&testGame, white) {
 							validMoves = append(validMoves, []byte{'e', row, '-', 'g', row})
 						}
@@ -292,9 +305,6 @@ func canOnpassant(game *GameState, x, y int, white bool) (left, right bool) {
 			return false, false
 		}
 	}
-	for _, move := range game.MoveList {
-		fmt.Println(string(move))
-	}
 	var free, taking = canLand(game, [2]int{x + 1, y + ymove}, white)
 	if free && !taking {
 		var onpassant = getMove([2]int{x + 1, y + (2 * ymove)}, [2]int{x + 1, y})
@@ -400,13 +410,17 @@ func MakeMove(game *GameState, move *[]byte) { //@todo add ugrading pawns
 		if (left || right) && (nx != ox) {
 			game.Board[nx][oy] = []byte{}
 		} else if white && ny == 7 {
+			fmt.Println("upgrading", nx, ny)
 			game.Board[ox][oy] = []byte{}
 			var queencount = countQueens(game, white)
 			game.Board[nx][ny] = []byte{'W', 'Q', byte(queencount + 1)}
+			return
 		} else if !white && ny == 0 {
+			fmt.Println("upgrading", nx, ny)
 			game.Board[ox][oy] = []byte{}
 			var queencount = countQueens(game, white)
 			game.Board[nx][ny] = []byte{'B', 'Q', byte(queencount + 1)}
+			return
 		}
 	} else if pieceType == 'K' {
 		var dist = nx - ox
@@ -435,6 +449,7 @@ func countQueens(game *GameState, white bool) int {
 			}
 		}
 	}
+	fmt.Println("newQueen =", count+1)
 	return count
 }
 
