@@ -7,13 +7,13 @@ import (
 
 type User struct {
 	Id          int64
-	Username    string `sql:"type:varchar(60);unique"`
-	AccessToken string `sql:"type:varchar(60);" json:"-"`
-	CurrentRank int
-	IsAi        bool
-	VersesAi    bool
-	CreatedAt   NullTime `sql:"type:datetime"`
-	UpdatedAt   NullTime `sql:"type:datetime"`
+	Username    string   `sql:"type:varchar(60);unique" json:"username"`
+	AccessToken string   `sql:"type:varchar(60);" json:"-"`
+	CurrentRank int      `json:"current_rank"`
+	IsAi        bool     `json:"is_ai"`
+	VersesAi    bool     `json:"verses_ai"`
+	CreatedAt   NullTime `sql:"type:datetime" json:"created_at"`
+	UpdatedAt   NullTime `sql:"type:datetime" json:"updated_at"`
 	DeletedAt   NullTime `sql:"type:datetime" json:"-"`
 }
 

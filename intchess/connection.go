@@ -18,11 +18,6 @@ func (c *Connection) Reader() {
 		var reply string
 		err := websocket.Message.Receive(c.ws, &reply)
 		if err != nil {
-			// if c.User == nil {
-			// 	fmt.Println("Connection lost for " + c.User.Username)
-			// } else {
-			// 	fmt.Println("Connection lost for anon user")
-			// }
 			break
 		}
 		//packet := &GamePacket{Message: reply, User: c.Player}
@@ -39,21 +34,11 @@ Loop:
 		for msg := range c.sendMessages {
 			err := websocket.Message.Send(c.ws, msg)
 			if err != nil {
-				// if c.User == nil {
-				// 	fmt.Println("Connection lost for " + c.User.Username)
-				// } else {
-				// 	fmt.Println("Connection lost for anon user")
-				// }
 				break Loop
 			}
 		}
 		//how to detect if broken if no messages to send?
 		if !c.ws.IsClientConn() {
-			// if c.User == nil {
-			// 	fmt.Println("Connection lost for " + c.User.Username)
-			// } else {
-			// 	fmt.Println("Connection lost for anon user")
-			// }
 			break Loop
 		}
 	}
@@ -108,7 +93,30 @@ func (c *Connection) DecodeMessage(message []byte) {
 		if r.Response == "ok" {
 			c.AcceptGameRequest()
 		}
-
+	case "game_move_request":
+		var r APIGameMoveRequest
+		if err := json.Unmarshal(message, &r); err == nil {
+			if c.GameIndex != nil {
+				if err := Games[*c.GameIndex].AttemptMove(r.Move, c); err != nil {
+					c.SendMoveRejected(err.Error())
+				}
+			} else {
+				c.SendMoveRejected("not in game")
+			}
+		} else {
+			c.SendMoveRejected("json error: " + err.Error())
+		}
+	case "game_chat_request":
+		var r APIGameChatRequest
+		if err := json.Unmarshal(message, &r); err == nil {
+			if c.GameIndex != nil {
+				Games[*c.GameIndex].Chat(r.MessageId, c)
+			} else {
+				c.SendRejected("chat_rejected", "not in game")
+			}
+		} else {
+			c.SendRejected("chat_rejected", "json error: "+err.Error())
+		}
 	default:
 		fmt.Println("I'm not familiar with type " + t.Type)
 	}
@@ -194,6 +202,36 @@ func (c *Connection) SendGameUpdate(g *ChessGame, Type string) {
 	serverOut := APIGameOutput{
 		Type: Type,
 		Game: g,
+	}
+	serverMsg, _ := json.Marshal(serverOut)
+	c.sendMessages <- string(serverMsg)
+}
+
+func (c *Connection) SendMoveRejected(rejectReason string) {
+	//mark them as accepting the game, and alert them that we're happy
+	serverOut := APIGameResponse{
+		Type:     "game_move_rejected",
+		Response: rejectReason,
+	}
+	serverMsg, _ := json.Marshal(serverOut)
+	c.sendMessages <- string(serverMsg)
+}
+
+func (c *Connection) SendChat(messageId int, sender *User) {
+	serverOut := APIGameChat{
+		Type:      "game_chat",
+		From:      sender,
+		MessageId: messageId,
+	}
+	serverMsg, _ := json.Marshal(serverOut)
+	c.sendMessages <- string(serverMsg)
+}
+
+func (c *Connection) SendRejected(Type string, rejectReason string) {
+	//mark them as accepting the game, and alert them that we're happy
+	serverOut := APIGameResponse{
+		Type:     Type,
+		Response: rejectReason,
 	}
 	serverMsg, _ := json.Marshal(serverOut)
 	c.sendMessages <- string(serverMsg)
