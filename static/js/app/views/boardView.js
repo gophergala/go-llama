@@ -81,7 +81,7 @@ define(
 						if(wsHandler.user.user_id == game.winner.user_id){
 							text += 'You win. Your rank changed by '+game.winner.rank_change;
 						}else{
-							text += 'You loose. Your rank changed by '+game.winner.rank_change;
+							text += 'You lose. Your rank changed by '+game.loser.rank_change;
 						}
 						break;
 
