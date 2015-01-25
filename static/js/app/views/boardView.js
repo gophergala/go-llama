@@ -22,9 +22,10 @@ define(
 			},
 			template:_.template(boardTemplate),
 			initialize:function(){
-				_.bindAll(this, 'updateBoard', 'columnLoop', 'rowLoop');
+				_.bindAll(this, 'updateBoard', 'columnLoop', 'rowLoop', 'showValidMoves');
 				wsHandler.on('game_move_update', this.updateBoard);
 				wsHandler.on('game_over', this.gameOver);
+				wsHandler.on('game_get_valid_moves_response', this.showValidMoves);
 
 				this.blackPieces = new PiecesCol({'color':'black'});
 				this.whitePieces = new PiecesCol({'color':'white'});
@@ -173,6 +174,9 @@ define(
 
 
 				}
+			},
+			showValidMoves:function(moves){
+				console.log(moves);
 			},
 			onRender:function(){
 				this.blackPiecesRegion.show(this.blackPiecesView);

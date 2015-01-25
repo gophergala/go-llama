@@ -31,6 +31,14 @@ define([
 			},
 			startDrag:function(event, ui){
 				console.log(event);
+				var startLoc = this.model.get('location');
+				var locChr = String.fromCharCode(96 + parseInt(startLoc[0]));
+				var locationString = locChr + startLoc[1];
+				if (window.YourColor === 'black'){
+					locationString = locChr + (9 - startLoc[1]);
+				}
+				wsHandler.getValidMoves(locationString);
+				// send that location to request valid moves
 			},
 			revert:function(socketObj){
 				if(socketObj){
@@ -49,7 +57,7 @@ define([
 
 					var moveString = oldchr + oldloc[1] + '-' + newchr + loc[1];
 					if(window.YourColor === 'black'){
-						var moveString = oldchr + (9 - oldloc[1]) + '-' + newchr + (9 - loc[1]);	
+						moveString = oldchr + (9 - oldloc[1]) + '-' + newchr + (9 - loc[1]);	
 					}
 					// $('#movelog').append(moveString + '<br>');
 
