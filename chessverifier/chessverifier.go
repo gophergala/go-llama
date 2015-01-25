@@ -56,19 +56,12 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		}
 
 		//checking for on passant, right then left
-		free, taking = canLand(game, [2]int{x + 1, y + ymove}, white)
-		if free && !taking {
-			var onpassantRight = getMove([2]int{x + 1, y + (2 * ymove)}, [2]int{x + 1, y})
-			if len(game.MoveList) > 1 && moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassantRight) {
-				validMoves = append(validMoves, onpassantRight)
-			}
+		var left, right = canOnpassant(game, x, y, white)
+		if right {
+			validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x + 1, y + ymove}))
 		}
-		free, taking = canLand(game, [2]int{x - 1, y + ymove}, white)
-		if free && !taking {
-			var onpassantRight = getMove([2]int{x - 1, y + (2 * ymove)}, [2]int{x + 1, y})
-			if len(game.MoveList) > 1 && moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassantRight) {
-				validMoves = append(validMoves, onpassantRight)
-			}
+		if left {
+			validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x - 1, y + ymove}))
 		}
 
 	case 'R':
@@ -266,9 +259,38 @@ func IsMate(game *GameState, white bool) (mate, check bool) {
 	return false, false
 }
 
-// func canOnpassant(game *GameState, x, y int) (left, right bool) {
-
-// }
+func canOnpassant(game *GameState, x, y int, white bool) (left, right bool) {
+	if len(game.MoveList) <= 1 {
+		return false, false
+	}
+	var ymove int
+	if white {
+		ymove = 1
+		if y != 1 {
+			return false, false
+		}
+	} else {
+		ymove = -1
+		if y != 6 {
+			return false, false
+		}
+	}
+	var free, taking = canLand(game, [2]int{x + 1, y + ymove}, white)
+	if free && !taking {
+		var onpassant = getMove([2]int{x + 1, y + (2 * ymove)}, [2]int{x + 1, y})
+		if moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassant) && game.Board[x+1][y][1] == 'P' {
+			right = true
+		}
+	}
+	free, taking = canLand(game, [2]int{x - 1, y + ymove}, white)
+	if free && !taking {
+		var onpassant = getMove([2]int{x - 1, y + (2 * ymove)}, [2]int{x + 1, y})
+		if moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassant) && game.Board[x-1][y][1] == 'P' {
+			left = true
+		}
+	}
+	return
+}
 
 //used for testing if a move will place the king in check so that functions can be passed only the board state after the move
 func testMove(game GameState, move *[]byte) GameState {
@@ -334,14 +356,52 @@ func GetBoardState(moveList *[][]byte) GameState {
 //This function is used to apply a move (eg "a2-a4") to the board
 //note that this does not check if the move is valid because it causes and infinite loop XD
 //you therefor need to make sure the move is allowed before trying it
-func MakeMove(game *GameState, move *[]byte) { //@todo add on passant and castling and add the move to the move list, also add ugrading pawns
+func MakeMove(game *GameState, move *[]byte) { //@todo add ugrading pawns
 	ox, oy := getSquareIndices((*move)[0:2])
 	nx, ny := getSquareIndices((*move)[3:5])
 	var piece = game.Board[ox][oy]
+	var white = piece[0] == 'W'
+	var pieceType = piece[1]
+	if pieceType == 'P' {
+		if canOnpassant(game, ox, oy, white) && (nx != ox) {
+			game.Board[nx][oy] = []byte{}
+		} else if white && ny == 7 {
+			game.Board[ox][oy] = []byte{}
+			var queencount = countQueens(game, white)
+			game.Board[nx][ny] = []byte{'W', 'Q', byte(queencount + 1)}
+		} else if !white && ny == 0 {
+			game.Board[ox][oy] = []byte{}
+			var queencount = countQueens(game, white)
+			game.Board[nx][ny] = []byte{'B', 'Q', byte(queencount + 1)}
+		}
+	} else if pieceType == 'K' {
+		var dist = nx - ox
+		if dist == 2 || dist == -2 {
+			if nx == 6 {
+				game.Board[5][ny] = game.Board[7][ny]
+				game.Board[7][ny] = []byte{}
+			} else if nx == 2 {
+				game.Board[3][ny] = game.Board[0][ny]
+				game.Board[0][ny] = []byte{}
+			}
+		}
+	}
 	game.Board[ox][oy] = []byte{}
 	game.Board[nx][ny] = piece
 	game.MoveList = append(game.MoveList, *move)
 	// }
+}
+
+func countQueens(game *GameState, white bool) int {
+	var count int
+	for i, row := range game.Board { //find the king
+		for j, piece := range row {
+			if piece[1] == 'Q' && (piece[0] == 'W') == white {
+				count++
+			}
+		}
+	}
+	return count
 }
 
 //This function is used to convert a piece location in Algebraic notation
