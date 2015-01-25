@@ -58,12 +58,12 @@ func GetValidMoves(game *GameState, x, y int) [][]byte {
 		}
 
 		if white && y == 1 {
-			var free, taking = canOnpassant(game, x, y+2, white)
+			var free, taking = canLand(game, [2]int{x, y + 2}, white)
 			if free && !taking {
 				validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x, y + 2}))
 			}
 		} else if !white && y == 6 {
-			var free, taking = canOnpassant(game, x, y-2, white)
+			var free, taking = canLand(game, [2]int{x, y - 2}, white)
 			if free && !taking {
 				validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x, y - 2}))
 			}
