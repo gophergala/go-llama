@@ -65,7 +65,7 @@ define([
 		}
 
 
-		var tplData = {};
+		var tplData = {msg: 'Connecting to server...'};
 
 		var changeView = function(tpl, newData){
 			tplData = newData || {};

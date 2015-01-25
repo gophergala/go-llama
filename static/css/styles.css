@@ -39,7 +39,7 @@ td.white {
 	float: left;
 	margin-top: 20px;
 	margin-right: 20px;
-	width: 300px;
+	width: 400px;
 }
 
 td.highlight {
@@ -49,7 +49,7 @@ td.highlight {
 #chat-history {
 	margin-top: 2em;
 	overflow-y: scroll;
-	height: 280px;
+	height: 270px;
 }
 
 #currentColor {
@@ -66,8 +66,9 @@ td.highlight {
 	margin-top: 5px;
 	margin: 0 auto;
 	background-color: white;
-	height: 40em;
+	height: 42em;
 	width: 68em;
+	position: relative;
 }
 
 #header {
@@ -90,7 +91,18 @@ label {
 	height: 50px;
 }
 
-/*#interaction-window img {
-	position: relative;
-	left: -25%;
-}*/
+.user-form {
+	width: 300px;
+}
+
+#footer {
+	font: helvetica;
+	font-size: 10pt;
+	height: 3em;
+	text-align: center;
+	position: absolute;
+	bottom: 0;
+	background-color: white;
+	width: 100%;
+	border-top: 1px solid black;
+}

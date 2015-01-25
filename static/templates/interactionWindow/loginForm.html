@@ -1,31 +1,19 @@
 <% if (typeof(error) != "undefined") { %>
-<h3><%=error%></h3>
+<div class="panel panel-danger user-form center-block">
+	<div class="panel-heading">
+	<h5 class="text-center"><%=error%></h5>
+	</div>
+</div>
 <% } %>
 
-<form id="login-form">
-<label for="username">Username</label><input type="text" name="username"><br />
-<label for="password">Password</label><input type="password" name="password"><br />
-<button type="submit" id="login-button">Login!</button>
-<br />
-<a href="#" id="i-want-to-register">Register</a>
-</form>
+<form id="login-form" class="center-block user-form">
+	<div class="form-group">
+		<input type="email" class="form-control" name="username" placeholder="username">
+	</div>
+	<div class="form-group">
+		<input type="password" name="password" class="form-control" placeholder="password">
+	</div>
 
-<!-- <table>
-		<tr>
-			<td><label for="username">Username</label></td>
-			<td><input type="text" name="username"></td>
-		</tr>
-		<tr>
-			<td><label for="password">Password</label></td>
-			<td><input type="password" name="password"></td>
-		</tr>
-		<tr>
-			<td><button type="submit" id="login-button">Login!</button></td>
-		</tr>
-		<tr>
-			<td><a href="#" id="i-want-to-register">Register</a></td>
-		</tr>
-		
-		
-		
-	</table> -->
+	<button type="submit" id="login-button" class="btn btn-primary">Login</button>
+	<button type="button" id="i-want-to-register" class="btn btn-link">Register</button>
+</form>

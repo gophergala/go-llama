@@ -1,5 +1,9 @@
-<h3><%=opponent.username%> would like to play you. Do you accept?</h3>
-<h5><%=opponent.username%> is <% if (opponent.is_ai) { %>an AI<% } else { %> a real person <% } %></h5>
-<h5><%=opponent.username%> has a rank of <%=opponent.current_rank%></h5> 
-<button id="game-accept" type="button">Accept</button>
-<button id="game-deny" type="button">Deny</button>
+
+<h3 class="text-center">Game Request</h3>
+<p style="margin-top: 1.5em;"><%=opponent.username%> would like to play you!<br>
+<%=opponent.username%> is <% if (opponent.is_ai) { %>an AI<% } else { %> a real person <% } %> who has a rank of <%=opponent.current_rank%></p>
+
+<div class="text-center" style="margin-top: 1.5em;">
+	<button id="game-accept" type="button" class="btn btn-primary">Accept</button>
+	<button id="game-deny" type="button" class="btn btn-danger" style="margin-left: 1em;">Deny</button>
+</div>
