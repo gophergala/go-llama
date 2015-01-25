@@ -193,7 +193,7 @@ func (GS *GameServer) clearExpiredGames() {
 		if game.Expired() { //offer to play expired
 			delete(Games, index)
 		}
-		if game.End() {
+		if game.End() { //ended due to disconnection or gameover
 			delete(Games, index)
 		}
 	}

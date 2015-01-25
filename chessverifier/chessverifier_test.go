@@ -44,6 +44,11 @@ func Test_getSquareIndices(t *testing.T) {
 	if x != 2 && y != 2 {
 		t.Errorf("a1 did not map correctly to 2,2")
 	}
+	a = []byte{'h', '8'}
+	x, y = getSquareIndices(a)
+	if x != 7 && y != 7 {
+		t.Errorf("h8 did not map correctly to 7,7")
+	}
 }
 
 func Test_NewGame(t *testing.T) {

@@ -150,9 +150,13 @@ func (a *AI) Runner() {
 	} else {
 		a.attemptAuthentication(a.PropUsername, a.PropPassword)
 	}
+Loop:
 	for {
 		for msg := range a.receivedMessages {
 			a.DecodeMessage([]byte(msg))
+		}
+		if !a.ws.IsClientConn() {
+			break Loop
 		}
 	}
 

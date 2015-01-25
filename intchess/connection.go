@@ -110,7 +110,12 @@ func (c *Connection) DecodeMessage(message []byte) {
 		var r APIGameChatRequest
 		if err := json.Unmarshal(message, &r); err == nil {
 			if c.GameIndex != nil {
-				Games[*c.GameIndex].Chat(r.MessageId, c)
+				if _, ok := Games[*c.GameIndex]; ok {
+					Games[*c.GameIndex].Chat(r.MessageId, c)
+				} else {
+					c.GameIndex = nil
+					c.SendRejected("chat_rejected", "not in game")
+				}
 			} else {
 				c.SendRejected("chat_rejected", "not in game")
 			}
@@ -205,6 +210,10 @@ func (c *Connection) SendGameUpdate(g *ChessGame, Type string) {
 	}
 	serverMsg, _ := json.Marshal(serverOut)
 	c.sendMessages <- string(serverMsg)
+	if g.Status == "game_over" {
+		c.GameIndex = nil //put us back into the pool for new games
+	}
+
 }
 
 func (c *Connection) SendMoveRejected(rejectReason string) {
@@ -235,8 +244,4 @@ func (c *Connection) SendRejected(Type string, rejectReason string) {
 	}
 	serverMsg, _ := json.Marshal(serverOut)
 	c.sendMessages <- string(serverMsg)
-}
-
-func (c *Connection) SendGameOver() {
-
 }

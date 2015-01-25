@@ -120,6 +120,8 @@ func (c *ChessGame) End() bool {
 			c.EndGame()
 			return true
 		}
+	} else if c.Status == "victory" || c.Status == "stalemate" {
+		return true
 	}
 	//check checkmate, etc
 	return false
@@ -136,6 +138,7 @@ func (c *ChessGame) EndGame() {
 	}
 	c.FinishedAt = NullTime{Time: time.Now(), Valid: true}
 	dbGorm.Save(c)
+
 }
 
 func (c *ChessGame) ClientsStillConnected() bool {
@@ -214,20 +217,20 @@ func (c *ChessGame) AttemptMove(moveStr string, moverConn *Connection) error {
 func (c *ChessGame) GameFinished(notStalemate bool, whiteWon bool) {
 	if notStalemate == false {
 		c.Status = "stalemate"
-		c.EndGame()
 	}
 	if whiteWon == true {
-		c.Status = "game_won"
+		c.Status = "victory"
 		c.WhiteConn.User.WonGame(c, c.BlackConn.User)
 	} else {
-		c.Status = "game_won"
+		c.Status = "victory"
 		c.BlackConn.User.WonGame(c, c.WhiteConn.User)
 	}
+	c.WhitePlayer = c.WhiteConn.User //so JSON version can see new rank
+	c.BlackPlayer = c.BlackConn.User
 
 	dbGorm.Save(c)
 
-	c.WhiteConn.SendGameOver()
-	c.BlackConn.SendGameOver()
+	c.EndGame()
 }
 
 func (c *ChessGame) Chat(messageId int, sender *Connection) {
