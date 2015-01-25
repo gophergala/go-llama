@@ -44,10 +44,41 @@ type APIGameOutput struct {
 	Game *ChessGame `json:"game"`
 }
 
+/*
+{
+"type":"signup_request",
+"username": "some-other-username",
+"user_token": "some-access-token",
+"is_ai": false,
+"verses_ai": true
+}
+*/
 type APISignupRequest struct {
 	Type      string `json:"type"`
 	Username  string `json:"username"`
 	UserToken string `json:"user_token"`
 	IsAi      bool   `json:"is_ai"`
 	VersesAi  bool   `json:"verses_ai"`
+}
+
+/*
+{
+"type":"game_move_request",
+"move":"e5-e3"
+}
+*/
+type APIGameMoveRequest struct {
+	Type string `json:"type"`
+	Move string `json:"move"`
+}
+
+type APIGameChatRequest struct {
+	Type      string `json:"type"`
+	MessageId int    `json:"message_id"`
+}
+
+type APIGameChat struct {
+	Type      string `json:"type"`
+	From      *User  `json:"from"`
+	MessageId int    `json:"message_id"`
 }

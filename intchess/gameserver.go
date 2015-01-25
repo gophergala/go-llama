@@ -152,7 +152,8 @@ func (GS *GameServer) attemptMatchCreations() {
 	}
 	//make the array even
 	if lenOutGamers%2 == 1 {
-		outOfGameConnections = outOfGameConnections[0 : lenOutGamers-2] //sorry, last player
+		outOfGameConnections = outOfGameConnections[0 : lenOutGamers-1] //sorry, last player
+		lenOutGamers--
 	}
 
 	//try match randomly chosen players by randomly sorting the array
