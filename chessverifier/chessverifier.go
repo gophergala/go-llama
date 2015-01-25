@@ -307,7 +307,7 @@ func canOnpassant(game *GameState, x, y int, white bool) (left, right bool) {
 	}
 	free, taking = canLand(game, [2]int{x - 1, y + ymove}, white)
 	if free && !taking {
-		var onpassant = getMove([2]int{x - 1, y + (2 * ymove)}, [2]int{x + 1, y})
+		var onpassant = getMove([2]int{x - 1, y + (2 * ymove)}, [2]int{x - 1, y})
 		if moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassant) && game.Board[x-1][y][1] == 'P' {
 			left = true
 		}
@@ -367,7 +367,7 @@ func GetAllValidMoves(game *GameState, white bool) (validMoves [][]byte) {
 
 func IsMoveValid(game *GameState, move *[]byte) bool {
 	fmt.Println("IsMoveValid")
-	var x, y = getSquareIndices((*move)[0:2])
+	var x, y = GetSquareIndices((*move)[0:2])
 	var moveList = GetValidMoves(game, x, y)
 	for _, testmove := range moveList {
 		if moveEqual(move, &testmove) {
@@ -391,8 +391,8 @@ func GetBoardState(moveList *[][]byte) GameState {
 //you therefor need to make sure the move is allowed before trying it
 func MakeMove(game *GameState, move *[]byte) { //@todo add ugrading pawns
 	// fmt.Println("MakeMove")
-	ox, oy := getSquareIndices((*move)[0:2])
-	nx, ny := getSquareIndices((*move)[3:5])
+	ox, oy := GetSquareIndices((*move)[0:2])
+	nx, ny := GetSquareIndices((*move)[3:5])
 	fmt.Println(ox, oy, nx, ny)
 	var piece = game.Board[ox][oy]
 	var white = piece[0] == 'W'
@@ -442,7 +442,7 @@ func countQueens(game *GameState, white bool) int {
 
 //This function is used to convert a piece location in Algebraic notation
 //to a piece location in the internal board 2d slice
-func getSquareIndices(squareID []byte) (x, y int) {
+func GetSquareIndices(squareID []byte) (x, y int) {
 	// fmt.Println("square", string(squareID))
 	y = int(squareID[1] - '1')
 	x = int(squareID[0] - 'a')
