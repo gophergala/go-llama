@@ -124,34 +124,48 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		}
 
 		//check for castling
-		var king, left, right bool //left and right for each of the rooks
-		var row byte
-		var rownum int
-		if white {
-			row = '1'
-			rownum = 0
-		} else {
-			row = '8'
-			rownum = 7
-		}
-		for _, move := range game.MoveList {
-			if move[1] == row {
-				if move[0] == 'e' {
-					king = false
-					break
-				} else if move[0] == 'a' && left {
-					left = false
-				} else if move[0] == 'h' && right {
-					right = false
+		if !isCheck(game, white) {
+			var king, left, right bool //left and right for each of the rooks
+			var row byte
+			var rownum int
+			if white {
+				row = '1'
+				rownum = 0
+			} else {
+				row = '8'
+				rownum = 7
+			}
+			for _, move := range game.MoveList {
+				if move[1] == row {
+					if move[0] == 'e' {
+						king = false
+						break
+					} else if move[0] == 'a' && left {
+						left = false
+					} else if move[0] == 'h' && right {
+						right = false
+					}
 				}
 			}
-		}
-		if king {
-			if left && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
-				validMoves = append(validMoves, []byte{'e', row, '-', 'c', row})
-			}
-			if right && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
-				validMoves = append(validMoves, []byte{'e', row, '-', 'g', row})
+			if king {
+				if left && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
+					var testGame = testMove(*game, &[]byte{'e', row, '-', 'd', row})
+					if !isCheck(&testGame, white) {
+						MakeMove(&testGame, &[]byte{'e', row, '-', 'c', row})
+						if !isCheck(&testGame, white) {
+							validMoves = append(validMoves, []byte{'e', row, '-', 'c', row})
+						}
+					}
+				}
+				if right && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
+					var testGame = testMove(*game, &[]byte{'e', row, '-', 'f', row})
+					if !isCheck(&testGame, white) {
+						MakeMove(&testGame, &[]byte{'e', row, '-', 'g', row})
+						if !isCheck(&testGame, white) {
+							validMoves = append(validMoves, []byte{'e', row, '-', 'g', row})
+						}
+					}
+				}
 			}
 		}
 	}
