@@ -72,6 +72,10 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 		wsHandler.socket.sendJSON({type: 'game_response', response: (accept)?'ok':'not-ok'});
 	};
 
+	wsHandler.moveRequest = function(move){
+		wsHandler.socket.sendJSON({type: 'game_move_request', move: move});
+	};
+
 
 	wsHandler.on('all', function(){
 		console.log(arguments);
