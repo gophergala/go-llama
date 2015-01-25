@@ -1,0 +1,12 @@
+<% if (typeof(error) != "undefined") { %>
+<h3><%=error%></h3>
+<% } %>
+
+<form id="register-form">
+<label for="username">Username</label><input type="text" name="username"><br />
+<label for="password">Password</label><input type="password" name="password"><br />
+<input type="checkbox" name="verseai">I am happy to play AI players</input><br>
+<button type="submit" id="register-button">Register</button>
+<br />
+<a href="#" id="i-want-to-login">Log in</a>
+</form>

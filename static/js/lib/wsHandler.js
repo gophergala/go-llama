@@ -15,9 +15,15 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 	});
 
 	wsHandler.on('opened', function(msg){
+		wsHandler.connected = true;
+		
+	});
+
+	wsHandler.on('closed', function(msg){
+		wsHandler.connected = false;
 
 		//console.log('starting auth');
-		wsHandler.authenticate('test', 'test');
+		//wsHandler.authenticate('test', 'test');
 		
 	});
 
@@ -27,8 +33,25 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 
 		switch(data.type){
 			case 'authentication_response':
-					wsHandler.trigger('authentication_response', data.response, data.user);
+				wsHandler.trigger('authentication_response', data.response, data.user);
 				break;
+
+			case 'signup_response':
+				wsHandler.trigger('signup_response', data.response, data.user);
+				break;
+
+			case 'game_request':
+				wsHandler.trigger('game_request', data.opponent);
+				break;
+
+			case 'game_response_rejection':
+				wsHandler.trigger('game_response_rejection', data.response);
+				break;
+
+			case 'game_update':
+				wsHandler.trigger('game_update', data.game);
+				break;
+
 
 			default:
 				//console.log('Unknown data type', data.type, data);
@@ -41,7 +64,13 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 		wsHandler.socket.sendJSON({type: 'authentication_request', username: username, user_token: password});
 	};
 
+	wsHandler.register = function(username, password, verseai){
+		wsHandler.socket.sendJSON({type: 'signup_request', username: username, user_token: password, is_ai: false, verses_ai: verseai});
+	};
 
+	wsHandler.gameResponse = function(accept){
+		wsHandler.socket.sendJSON({type: 'game_response', response: (accept)?'ok':'not-ok'});
+	};
 
 
 	wsHandler.on('all', function(){

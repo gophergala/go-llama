@@ -10,7 +10,7 @@ define(
 
 		app.addInitializer(function(){
 			app.board.show(new Board());
-			app.interactionWindow.show(new InteractionWindow());
+			app.interactionWindow.show(InteractionWindow);
 			$('td').droppable({
 				drop: function(){
 					alert('dropped');
