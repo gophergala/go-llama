@@ -24,7 +24,7 @@ func NewGame() GameState {
 
 func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 	var piece = game.Board[x][y]
-	fmt.Println(string(piece))
+	// fmt.Println(string(piece))
 	if len(piece) == 0 {
 		return [][]byte{}
 	}
@@ -80,8 +80,7 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...) //down
 
 	case 'N':
-		var moveDiffs [8][2]int = [8][2]int{[2]int{2, 1}, [2]int{2, -1}, [2]int{1, 2},
-			[2]int{-1, 2}, [2]int{-2, 1}, [2]int{-2, -1}, [2]int{-1, -2}, [2]int{1, -2}}
+		var moveDiffs = knightMoves
 
 		for i := range moveDiffs {
 			var canLand, _ = canLand(game, [2]int{x + moveDiffs[i][0], y + moveDiffs[i][1]}, white)
@@ -197,31 +196,75 @@ func moveDirection(game *GameState, x, y int, direction [2]int, white bool) (val
 }
 
 func isCheck(game *GameState, white bool) bool {
-	// var pawnDirection = 1
-	// if !white {
-	// 	pawnDirection = -1
-	// }
-	// for _, row := range game.Board {
-	// 	for _, cell := range row {
-
-	// 	}
-	// }
+	var pawnDirection = 1 //this is for finding attacking pawns
+	if !white {
+		pawnDirection = -1
+	}
 	var x, y int
+	var pieceType byte
+
+	for i, row := range game.Board { //find the king
+		for j, piece := range row {
+			if piece[1] == 'K' && (piece[0] == 'W') == white {
+				x = i
+				y = j
+			}
+		}
+	}
+
+	if game.Board[x+1][y+pawnDirection][1] == 'P' || game.Board[x-1][y+pawnDirection][1] == 'P' {
+		return true
+	}
+
+	var destination [2]int
+	for _, moveDiff := range knightMoves {
+		destination = [2]int{x + moveDiff[0], y + moveDiff[1]}
+		if game.Board[destination[0]][destination[1]][1] == 'K' {
+			return true
+		}
+	}
+
 	for _, direction := range squareDirections {
 		for i := 1; i < 8; i++ {
 			var canLand, taking = canLand(game, [2]int{x + (direction[0] * i), y + (direction[1] * i)}, white)
 			if taking {
 				// validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x + i, y}))
-
+				pieceType = game.Board[x+(direction[0]*i)][y+(direction[1]*i)][1]
+				if pieceType == 'Q' || pieceType == 'R' {
+					return true
+				}
 			} else if !canLand {
-				break
+				continue
+			}
+		}
+	}
+	for _, direction := range diagonalDirections {
+		for i := 1; i < 8; i++ {
+			var canLand, taking = canLand(game, [2]int{x + (direction[0] * i), y + (direction[1] * i)}, white)
+			if taking {
+				// validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x + i, y}))
+				pieceType = game.Board[x+(direction[0]*i)][y+(direction[1]*i)][1]
+				if pieceType == 'Q' || pieceType == 'B' {
+					return true
+				}
+			} else if !canLand {
+				continue
 			}
 		}
 	}
 	return false
 }
 
-// func isCheckMate or stalemate
+func isMate(game *GameState, white bool) (mate, check bool) {
+	if len(GetAllValidMoves(game, white)) == 0 {
+		if isCheck(game, white) {
+			return true, true
+		} else {
+			return true, false
+		}
+	}
+	return false, false
+}
 
 //used for testing if a move will place the king in check so that functions can be passed only the board state after the move
 func testMove(game GameState, move *[]byte) GameState {
@@ -252,10 +295,12 @@ func getMove(source [2]int, dest [2]int) []byte {
 	return []byte{byte(source[0] + 'a'), byte(source[1] + '1'), '-', byte(dest[0] + 'a'), byte(dest[1] + '1')}
 }
 
-func GetAllValidMoves(game *GameState) (validMoves [][]byte) {
+func GetAllValidMoves(game *GameState, white bool) (validMoves [][]byte) {
+	var piece []byte
 	for x := range game.Board {
 		for y := range game.Board[x] {
-			if len(game.Board[x][y]) != 0 {
+			piece = game.Board[x][y]
+			if len(piece) != 0 && (piece[0] == 'W') == white {
 				validMoves = append(validMoves, GetValidMoves(game, x, y)...)
 			}
 		}
@@ -332,6 +377,8 @@ var StartBoardState BoardState = BoardState{
 
 var diagonalDirections = [][2]int{[2]int{1, 1}, [2]int{1, -1}, [2]int{-1, -1}, [2]int{-1, 1}}
 var squareDirections = [][2]int{[2]int{0, 1}, [2]int{0, -1}, [2]int{1, 0}, [2]int{-1, 0}}
+var knightMoves = [8][2]int{[2]int{2, 1}, [2]int{2, -1}, [2]int{1, 2},
+	[2]int{-1, 2}, [2]int{-2, 1}, [2]int{-2, -1}, [2]int{-1, -2}, [2]int{1, -2}}
 
 func Runtest() {
 	var game = NewGame()
