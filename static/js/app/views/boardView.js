@@ -22,11 +22,109 @@ define(
 			},
 			template:_.template(boardTemplate),
 			initialize:function(){
-				_.bindAll(this, 'createPieces', 'createSet');
+				_.bindAll(this, 'createPieces', 'createSet', 'updateBoard', 'columnLoop', 'rowLoop');
+				wsHandler.on('game_move_update', this.updateBoard);
+
+				this.blackPieces = new PiecesCol({'color':'black'});
+				this.whitePieces = new PiecesCol({'color':'white'});
+				this.blackPiecesView = new PiecesColView({
+					collection: this.blackPieces
+				});
+				this.whitePiecesView = new PiecesColView({
+					collection: this.whitePieces
+				});
+
+				this.blackPieces.reset();
+				this.whitePieces.reset();
 
 				// create pieces all over the place
-				this.createPieces();
+				// this.createPieces();
 
+			},
+			updateBoard:function(game){
+				this.blackPieces.reset();
+				this.whitePieces.reset();
+
+				console.log(game);
+				boardStatus = game.board_status;
+				_.each(boardStatus, this.columnLoop);
+			},
+			columnLoop:function(column, colnum){
+				this.columnNumber = colnum + 1;
+				_.each(column, this.rowLoop);
+			},
+			rowLoop:function(cell, rownum){
+				this.rowNumber = rownum + 1;
+				// console.log(colnum);
+				// console.log(rownum);
+				console.log(this.columnNumber);
+				console.log(this.rowNumber);
+				console.log(cell);
+				var decodedCell = window.atob(cell);
+				console.log(decodedCell);
+
+				var colorChar = decodedCell.charAt(0);
+				var pieceChar = decodedCell.charAt(1);
+
+				var color = 'white';
+				if(colorChar == 'B'){
+					color = 'black';
+				}
+
+				switch(pieceChar){
+					case 'P':
+						if(colorChar == 'B'){
+							this.blackPieces.add(new Pawn({'location':[this.columnNumber, this.rowNumber], 'color':'black'}));
+						}
+						else if (colorChar == 'W'){
+							this.whitePieces.add(new Pawn({'location':[this.columnNumber, this.rowNumber], 'color':'white'}));
+						}
+						break;
+					case 'R':
+						if(colorChar == 'B'){
+							this.blackPieces.add(new Rook({'location':[this.columnNumber, this.rowNumber], 'color':'black'}));
+						}
+						else if (colorChar == 'W'){
+							this.whitePieces.add(new Rook({'location':[this.columnNumber, this.rowNumber], 'color':'white'}));
+						}
+						break;
+					case 'N':
+						if(colorChar == 'B'){
+							this.blackPieces.add(new Knight({'location':[this.columnNumber, this.rowNumber], 'color':'black'}));
+						}
+						else if (colorChar == 'W'){
+							this.whitePieces.add(new Knight({'location':[this.columnNumber, this.rowNumber], 'color':'white'}));
+						}
+						break;
+					case 'B':
+						if(colorChar == 'B'){
+							this.blackPieces.add(new Bishop({'location':[this.columnNumber, this.rowNumber], 'color':'black'}));
+						}
+						else if (colorChar == 'W'){
+							this.whitePieces.add(new Bishop({'location':[this.columnNumber, this.rowNumber], 'color':'white'}));
+						}
+						break;
+					case 'Q':
+						if(colorChar == 'B'){
+							this.blackPieces.add(new Queen({'location':[this.columnNumber, this.rowNumber], 'color':'black'}));
+						}
+						else if (colorChar == 'W'){
+							this.whitePieces.add(new Queen({'location':[this.columnNumber, this.rowNumber], 'color':'white'}));
+						}
+						break;
+					case 'K':
+						if(colorChar == 'B'){
+							this.blackPieces.add(new King({'location':[this.columnNumber, this.rowNumber], 'color':'black'}));
+						}
+						else if (colorChar == 'W'){
+							this.whitePieces.add(new King({'location':[this.columnNumber, this.rowNumber], 'color':'white'}));
+						}
+						break;
+
+
+				}
+
+				console.log('whargarbl');
 			},
 			createPieces:function(){
 				this.blackPieces = new PiecesCol({'color':'black'});

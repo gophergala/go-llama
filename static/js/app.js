@@ -1,6 +1,7 @@
 define(
-	['app/views/boardView', 'app/views/interactionWindowView'], 
-	function(Board, InteractionWindow){
+	['app/views/boardView', 'app/views/interactionWindowView',
+	'wsHandler'], 
+	function(Board, InteractionWindow, wsHandler){
 		var app = new Marionette.Application();
 
 		app.addRegions({
