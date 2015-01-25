@@ -21,7 +21,12 @@ define([
 						opacity: 0.8,
 						distance: 10,
 						revert:this.revert,
-						start:this.startDrag
+						start:this.startDrag,
+						stop:function(){
+							$('.validSquare').each(function(index, element){
+								$(element).removeClass('validSquare');
+							});
+						}
 					});
 				}
 

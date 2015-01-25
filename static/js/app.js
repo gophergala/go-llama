@@ -13,10 +13,9 @@ define(
 			app.board.show(new Board());
 			app.interactionWindow.show(InteractionWindow);
 			$('td').droppable({
-				drop: function(){
-					// alert('dropped');
-					// console.log('dropped');
-				},
+				// drop: function(){
+					
+				// },
 				accept: '.piece',
 				hoverClass:'highlight'
 			});

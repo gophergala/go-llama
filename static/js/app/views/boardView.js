@@ -40,9 +40,6 @@ define(
 				this.whitePieces.reset();
 			},
 			updateBoard:function(game){
-				$('.validSquare').each(function(index, element){
-					$(element).removeClass('validSquare');
-				});
 				this.blackPieces.reset();
 				this.whitePieces.reset();
 
