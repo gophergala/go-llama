@@ -13,10 +13,11 @@ define(
 			app.interactionWindow.show(InteractionWindow);
 			$('td').droppable({
 				drop: function(){
-					alert('dropped');
+					// alert('dropped');
+					// console.log('dropped');
 				},
 				accept: '.piece',
-				activeClass:'highlight'
+				hoverClass:'highlight'
 			});
 		});
 

@@ -7,9 +7,10 @@ define(
 	'app/models/knight',
 	'app/models/bishop',
 	'app/models/queen',
-	'app/models/king'
+	'app/models/king',
+	'wsHandler'
 	],
-	function(boardTemplate, PiecesCol, PiecesColView, Pawn, Rook, Knight, Bishop, Queen, King)
+	function(boardTemplate, PiecesCol, PiecesColView, Pawn, Rook, Knight, Bishop, Queen, King, wsHandler)
 	{
 		var BoardView = Marionette.Layout.extend(
 		{
