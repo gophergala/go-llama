@@ -24,3 +24,18 @@ The Internet Chess server depends on a number of publically available open-sourc
 
 
 The details of the API can be found in /static/chessapi.html
+
+
+___
+##Google Cloud Configuration
+
+The Internet chess environment is set up utilising multiple resources:
+
+* web01 - Google Cloud VM running Go Server (chess.maycontainawesome.com)
+* Google Cloud SQL for MySQL storage utilised by web01
+* ai01 - Google Cloud VM running AI
+
+
+___
+##Running locally
+
