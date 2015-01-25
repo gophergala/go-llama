@@ -7,13 +7,13 @@ import (
 
 type BoardState [8][8][]byte
 type GameState struct {
-	board    BoardState
-	moveList [][]byte
+	Board    BoardState
+	MoveList [][]byte
 }
 
 func NewGame() GameState {
 	var game GameState
-	game.board = startBoardState
+	game.Board = StartBoardState
 	return game
 }
 
@@ -23,7 +23,7 @@ func NewGame() GameState {
 // }
 
 func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
-	var piece = game.board[x][y]
+	var piece = game.Board[x][y]
 	fmt.Println(string(piece))
 	if len(piece) == 0 {
 		return [][]byte{}
@@ -37,22 +37,38 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 			ymove = -1
 		}
 		var newSquare = [2]int{x, y + ymove}
-		var free, taking = canLand(game, newSquare, white)
+		var free, taking = canLand(game, newSquare, white) //moving forward
 		if free && !taking {
 			newMove = getMove([2]int{x, y}, newSquare)
 			validMoves = append(validMoves, newMove)
 		}
-		newSquare[0] = newSquare[0] + 1
+		newSquare[0] = newSquare[0] + 1 //taking to the right
 		free, taking = canLand(game, newSquare, white)
 		if free && taking {
 			newMove = getMove([2]int{x, y}, newSquare)
 			validMoves = append(validMoves, newMove)
 		}
-		newSquare[0] = newSquare[0] - 2
+		newSquare[0] = newSquare[0] - 2 //taking to the left
 		free, taking = canLand(game, newSquare, white)
 		if free && !taking {
 			newMove = getMove([2]int{x, y}, newSquare)
 			validMoves = append(validMoves, newMove)
+		}
+
+		//checking for on passant, right then left
+		free, taking = canLand(game, [2]int{x + 1, y + ymove}, white)
+		if free && !taking {
+			var onpassantRight = getMove([2]int{x + 1, y + (2 * ymove)}, [2]int{x + 1, y})
+			if moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassantRight) {
+				validMoves = append(validMoves, onpassantRight)
+			}
+		}
+		free, taking = canLand(game, [2]int{x - 1, y + ymove}, white)
+		if free && !taking {
+			var onpassantRight = getMove([2]int{x - 1, y + (2 * ymove)}, [2]int{x + 1, y})
+			if moveEqual(&game.MoveList[len(game.MoveList)-1], &onpassantRight) {
+				validMoves = append(validMoves, onpassantRight)
+			}
 		}
 
 	case 'R':
@@ -106,6 +122,38 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 				}
 			}
 		}
+
+		//check for castling
+		var king, left, right bool //left and right for each of the rooks
+		var row byte
+		var rownum int
+		if white {
+			row = '1'
+			rownum = 0
+		} else {
+			row = '8'
+			rownum = 7
+		}
+		for _, move := range game.MoveList {
+			if move[1] == row {
+				if move[0] == 'e' {
+					king = false
+					break
+				} else if move[0] == 'a' && left {
+					left = false
+				} else if move[0] == 'h' && right {
+					right = false
+				}
+			}
+		}
+		if king {
+			if left && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
+				validMoves = append(validMoves, []byte{'e', row, '-', 'c', row})
+			}
+			if right && len(game.Board[1][rownum]) == 0 && len(game.Board[2][rownum]) == 0 && len(game.Board[3][rownum]) == 0 {
+				validMoves = append(validMoves, []byte{'e', row, '-', 'g', row})
+			}
+		}
 	}
 
 	return
@@ -142,7 +190,7 @@ func canLand(game *GameState, square [2]int, white bool) (canLand, taking bool) 
 	if !(square[0] >= 0 && square[0] <= 7 && square[1] >= 0 && square[1] <= 7) { //is the destination off the board?
 		return false, false
 	}
-	var piece = game.board[square[0]][square[1]]
+	var piece = game.Board[square[0]][square[1]]
 	var occupied bool = len(piece) != 0
 
 	if !occupied { //on the board and empty
@@ -160,9 +208,9 @@ func getMove(source [2]int, dest [2]int) []byte {
 }
 
 func GetAllValidMoves(game *GameState) (validMoves [][]byte) {
-	for x := range game.board {
-		for y := range game.board[x] {
-			if len(game.board[x][y]) != 0 {
+	for x := range game.Board {
+		for y := range game.Board[x] {
+			if len(game.Board[x][y]) != 0 {
 				validMoves = append(validMoves, GetValidMoves(game, x, y)...)
 			}
 		}
@@ -192,13 +240,13 @@ func GetBoardState(moveList *[][]byte) GameState {
 //This function is used to apply a move (eg "a2-a4") to the board
 //note that this does not check if the move is valid because it causes and infinite loop XD
 //you therefor need to make sure the move is allowed before trying it
-func MakeMove(game *GameState, move *[]byte) {
+func MakeMove(game *GameState, move *[]byte) { //@todo add on passant and castling and add the move to the move list
 	// if IsMoveValid(game, move) {
 	ox, oy := getSquareIndices((*move)[0:2])
 	nx, ny := getSquareIndices((*move)[3:5])
-	var piece = game.board[ox][oy]
-	game.board[ox][oy] = []byte{}
-	game.board[nx][ny] = piece
+	var piece = game.Board[ox][oy]
+	game.Board[ox][oy] = []byte{}
+	game.Board[nx][ny] = piece
 	// }
 }
 
@@ -226,7 +274,7 @@ func moveEqual(a, b *[]byte) bool {
 }
 
 //Knight is actaully spelt Night did you know?
-var startBoardState BoardState = BoardState{
+var StartBoardState BoardState = BoardState{
 	[8][]byte{[]byte{'W', 'R', '1'}, []byte{'W', 'P', '1'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '1'}, []byte{'B', 'R', '1'}},
 	[8][]byte{[]byte{'W', 'N', '1'}, []byte{'W', 'P', '2'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '2'}, []byte{'B', 'N', '1'}},
 	[8][]byte{[]byte{'W', 'B', '1'}, []byte{'W', 'P', '3'}, []byte{}, []byte{}, []byte{}, []byte{}, []byte{'B', 'P', '3'}, []byte{'B', 'B', '1'}},
@@ -239,9 +287,9 @@ var startBoardState BoardState = BoardState{
 
 func Runtest() {
 	var game = NewGame()
-	game.board[1][0] = []byte{}
-	game.board[2][0] = []byte{}
-	// var board, _ = json.MarshalIndent(game.board, "", "  ")
+	game.Board[1][0] = []byte{}
+	game.Board[2][0] = []byte{}
+	// var board, _ = json.MarshalIndent(game.Board, "", "  ")
 	// fmt.Println(string(board))
 	var moveList = GetValidMoves(&game, 0, 0)
 	for _, move := range moveList {
