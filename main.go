@@ -30,7 +30,7 @@ func main() {
 	intchess.StartGameServer()
 
 	http.Handle("/ws", websocket.Handler(intchess.WsHandler))
-	http.Handle("/", http.FileServer(http.Dir("/static/")))
+	http.Handle("/", http.FileServer(http.Dir("./static/")))
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		fmt.Println("Fatal error: ListenAndServe:", err)
 	}

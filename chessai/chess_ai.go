@@ -21,7 +21,7 @@ type AI struct {
 
 var ai AI
 
-func Make(PropUsername string, PropPassword string, VersesAi bool, FirstUse bool, Solve func(*[][]byte) []byte) {
+func Make(PropUsername string, PropPassword string, VersesAi bool, FirstUse bool, Solve func(chessverifier.GameState) []byte) {
 	ai.PropPassword = PropPassword
 	ai.PropUsername = PropUsername
 	ai.FirstUse = FirstUse
@@ -94,16 +94,28 @@ func (a *AI) Runner() {
 
 }
 
-func (a *AI) UseCredentialsAndAuthenticate(username string, proposed_password string, verses_ai bool, first_use bool) {
-
-}
-
 func (a *AI) attemptAuthentication(username string, proposed_password string) {
-
+	request := intchess.APIAuthenticationRequest{
+		Type:      "authentication_request",
+		Username:  username,
+		UserToken: proposed_password,
+	}
+	msg, _ := json.Marshal(request)
+	ai.sendMessages <- string(msg)
+	return
 }
 
 func (a *AI) attemptCreateAndAuthenticate(username string, proposed_password string, verses_ai bool) {
-
+	request := intchess.APISignupRequest{
+		Type:      "signup_request",
+		Username:  username,
+		UserToken: proposed_password,
+		IsAi:      true,
+		VersesAi:  verses_ai,
+	}
+	msg, _ := json.Marshal(request)
+	ai.sendMessages <- string(msg)
+	return
 }
 
 func (a *AI) DecodeMessage(message []byte) {
