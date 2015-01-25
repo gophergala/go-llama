@@ -5,9 +5,10 @@ define([
 	'text!templates/interactionWindow/loading.html',
 	'text!templates/interactionWindow/loginForm.html',
 	'text!templates/interactionWindow/registerForm.html',
-	'text!templates/interactionWindow/gameRequest.html'
+	'text!templates/interactionWindow/gameRequest.html',
+	'text!templates/interactionWindow/generic.html'
 	],
-	function(Marionette, wsHandler, $, loadingTpl, loginTpl, registerTpl, gameRequest){
+	function(Marionette, wsHandler, $, loadingTpl, loginTpl, registerTpl, gameRequest, genericTpl){
 
 
 		var tplData = {};
@@ -116,8 +117,17 @@ define([
 
 		});
 
+		console.log(iw);
+
 
 		wsHandler.on('game_request', function(opponent){
+
+
+			//Only do this once if the game starts
+			wsHandler.once('game_move_update', function(opponent){
+				return changeView(genericTpl, {msg: 'Game started!'});
+			});
+
 			return changeView(gameRequest, {opponent: opponent});
 		});
 

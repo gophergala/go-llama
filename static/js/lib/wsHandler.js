@@ -48,8 +48,8 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 				wsHandler.trigger('game_response_rejection', data.response);
 				break;
 
-			case 'game_update':
-				wsHandler.trigger('game_update', data.game);
+			case 'game_move_update':
+				wsHandler.trigger('game_move_update', data.game);
 				break;
 
 
