@@ -93,7 +93,7 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 	};
 
 	wsHandler.getValidMoves = function(move){
-		wsHandler.socket.sendJSON({type: 'game_get_valid_moves_request', move: move});
+		wsHandler.socket.sendJSON({type: 'game_get_valid_moves_request', location: move});
 	};
 
 
