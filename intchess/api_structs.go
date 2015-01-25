@@ -86,7 +86,7 @@ type APIGameChat struct {
 /*
 {
 "type":"game_get_valid_moves_request",
-"move":"a2"
+"location":"a2"
 }
 */
 type APIGameGetValidMovesRequest struct {

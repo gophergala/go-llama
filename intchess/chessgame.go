@@ -137,7 +137,9 @@ func (c *ChessGame) EndGame() {
 		c.BlackConn.SendGameUpdate(c, "game_over")
 	}
 	c.FinishedAt = NullTime{Time: time.Now(), Valid: true}
-	dbGorm.Save(c)
+	if err := dbGorm.Save(c).Error; err != nil {
+		fmt.Println("DBError at chessgame:141: " + err.Error())
+	}
 
 }
 
@@ -186,6 +188,7 @@ func (c *ChessGame) AttemptMove(moveStr string, moverConn *Connection) error {
 	chessverifier.MakeMove(&curGameState, &curMove)
 	c.GameMoves = append(c.GameMoves, GameMove{Move: moveStr})
 	c.BoardStatus = curGameState.Board
+	GameOver := false
 
 	if len(c.GameMoves)%2 == 0 {
 		//that was the end of BLACK's turn
@@ -193,24 +196,29 @@ func (c *ChessGame) AttemptMove(moveStr string, moverConn *Connection) error {
 		if mate == true && check == true {
 			//black just won
 			c.GameFinished(true, false)
+			GameOver = true
 		} else if mate == true && check == false {
 			//stalemate
 			c.GameFinished(false, false)
+			GameOver = true
 		}
-
 	} else {
 		//that was the end of WHITE's turn
 		mate, check := chessverifier.IsMate(&curGameState, false)
 		if mate == true && check == true {
 			//white just won
 			c.GameFinished(true, true)
+			GameOver = true
 		} else if mate == true && check == false {
 			//stalemate
 			c.GameFinished(false, false)
+			GameOver = true
 		}
-	}
 
-	c.SendMoveUpdate()
+	}
+	if GameOver == false {
+		c.SendMoveUpdate()
+	}
 	return nil
 }
 
@@ -220,15 +228,13 @@ func (c *ChessGame) GameFinished(notStalemate bool, whiteWon bool) {
 	}
 	if whiteWon == true {
 		c.Status = "victory"
-		c.WhiteConn.User.WonGame(c, c.BlackConn.User)
+		c.Winner, c.Loser = c.WhiteConn.User.WonGame(c, c.BlackConn.User)
 	} else {
 		c.Status = "victory"
-		c.BlackConn.User.WonGame(c, c.WhiteConn.User)
+		c.Winner, c.Loser = c.BlackConn.User.WonGame(c, c.WhiteConn.User)
 	}
 	c.WhitePlayer = c.WhiteConn.User //so JSON version can see new rank
 	c.BlackPlayer = c.BlackConn.User
-
-	dbGorm.Save(c)
 
 	c.EndGame()
 }

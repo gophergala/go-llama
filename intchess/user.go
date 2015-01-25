@@ -6,7 +6,7 @@ import (
 )
 
 type User struct {
-	Id          int64
+	Id          int64    `json:"user_id"`
 	Username    string   `sql:"type:varchar(60);unique" json:"username"`
 	AccessToken string   `sql:"type:varchar(60);" json:"-"`
 	CurrentRank int      `json:"current_rank"`
@@ -68,16 +68,29 @@ func (u *User) WonGame(game *ChessGame, opponent *User) (Winner *UserRankChange,
 		RankChange:  -1,
 	}
 
-	dbGorm.First(u, u.Id) //reload before applying rank change
-	dbGorm.First(opponent, opponent.Id)
+	if err := dbGorm.First(u, u.Id).Error; err != nil { //reload before applying rank change
+		fmt.Println("DBError at user:72: " + err.Error())
+	}
+
+	if err := dbGorm.First(opponent, opponent.Id).Error; err != nil { //reload before applying rank change
+		fmt.Println("DBError at user:76: " + err.Error())
+	}
 
 	u.CurrentRank += winnerChange
 	opponent.CurrentRank--
 
-	dbGorm.Save(u)
-	dbGorm.Save(opponent)
-	dbGorm.Create(Winner)
-	dbGorm.Create(Loser)
+	if err := dbGorm.Save(u).Error; err != nil {
+		fmt.Println("DBError at user:83: " + err.Error())
+	}
+	if err := dbGorm.Save(opponent).Error; err != nil {
+		fmt.Println("DBError at user:86: " + err.Error())
+	}
+	if err := dbGorm.Create(Winner).Error; err != nil {
+		fmt.Println("DBError at user:89: " + err.Error())
+	}
+	if err := dbGorm.Create(Loser).Error; err != nil {
+		fmt.Println("DBError at user:92: " + err.Error())
+	}
 
 	return
 }

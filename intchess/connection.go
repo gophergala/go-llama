@@ -230,7 +230,7 @@ func (c *Connection) SendGameUpdate(g *ChessGame, Type string) {
 	}
 	serverMsg, _ := json.Marshal(serverOut)
 	c.sendMessages <- string(serverMsg)
-	if g.Status == "game_over" {
+	if g.Status == "victory" || g.Status == "stalemate" || g.Status == "disconnected" {
 		c.GameIndex = nil //put us back into the pool for new games
 	}
 

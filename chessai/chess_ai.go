@@ -217,8 +217,10 @@ func (a *AI) DecodeMessage(message []byte) {
 		a.SendGameAccept()
 	case "game_response_rejection":
 		//bleh, ignore it
+		break
 	case "game_response_accepted":
 		//bleh, ignore it
+		break
 	case "game_move_update":
 		var r intchess.APIGameOutput
 		if err := json.Unmarshal(message, &r); err != nil {
@@ -227,6 +229,7 @@ func (a *AI) DecodeMessage(message []byte) {
 		a.processMove(r.Game)
 	case "game_over":
 		//do we need to do anything?
+		break
 	case "game_chat":
 		var r intchess.APIGameChat
 		if err := json.Unmarshal(message, &r); err != nil {

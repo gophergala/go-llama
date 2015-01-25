@@ -16,7 +16,7 @@ func main() {
 	FirstUse := false
 	chessai.Make(PropUsername, PropPassword, VersesAi, FirstUse, RandSolver, IncomingChat)
 
-	addr := "ws://192.168.1.25:800/ws"
+	addr := "ws://chess.maycontainawesome.com:80/ws"
 	host := "http://localhost"
 
 	chessai.Run(addr, host) //this is a blocking call
