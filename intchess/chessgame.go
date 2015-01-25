@@ -231,7 +231,7 @@ func (c *ChessGame) GameFinished(notStalemate bool, whiteWon bool) {
 }
 
 func (c *ChessGame) Chat(messageId int, sender *Connection) {
-	if c.WhiteConn != nil && c.BlackConn != nil {
+	if c.WhiteConn != nil && c.BlackConn != nil && sender != nil && sender.User != nil {
 		c.WhiteConn.SendChat(messageId, sender.User)
 		c.BlackConn.SendChat(messageId, sender.User)
 	}
