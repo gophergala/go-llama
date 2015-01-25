@@ -217,10 +217,15 @@ func (c *ChessGame) GameFinished(notStalemate bool, whiteWon bool) {
 		c.EndGame()
 	}
 	if whiteWon == true {
+		c.Status = "game_won"
 		c.WhiteConn.User.WonGame(c, c.BlackConn.User)
 	} else {
+		c.Status = "game_won"
 		c.BlackConn.User.WonGame(c, c.WhiteConn.User)
 	}
+
+	dbGorm.Save(c)
+
 	c.WhiteConn.SendGameOver()
 	c.BlackConn.SendGameOver()
 }
