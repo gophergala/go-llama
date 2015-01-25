@@ -1,7 +1,7 @@
 package chessverifier
 
 import (
-	// "encoding/json"
+	"encoding/json"
 	"fmt"
 )
 
@@ -23,6 +23,7 @@ func NewGame() GameState {
 // }
 
 func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
+	fmt.Println("GetValidMoves", x, y)
 	var piece = game.Board[x][y]
 	// fmt.Println(string(piece))
 	if len(piece) == 0 {
@@ -74,11 +75,12 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 
 	case 'N':
 		var moveDiffs = knightMoves
-
+		var free bool
 		for i := range moveDiffs {
-			var canLand, _ = canLand(game, [2]int{x + moveDiffs[i][0], y + moveDiffs[i][1]}, white)
-			if canLand {
+			free, _ = canLand(game, [2]int{x + moveDiffs[i][0], y + moveDiffs[i][1]}, white)
+			if free {
 				var newMove = getMove([2]int{x, y}, [2]int{x + moveDiffs[i][0], y + moveDiffs[i][1]})
+				fmt.Println("newMove=", string(newMove))
 				var testGame = testMove(*game, &newMove)
 				if !IsCheck(&testGame, white) {
 					validMoves = append(validMoves, newMove)
@@ -113,8 +115,10 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 			[2]int{-1, 1}, [2]int{-1, 0}, [2]int{-1, -1}, [2]int{0, -1}, [2]int{1, -1}}
 
 		for i := range moveDiffs {
-			var canLand, _ = canLand(game, moveDiffs[i], white)
-			if canLand {
+			fmt.Println("moveDiff", i, moveDiffs[i])
+			var free, _ = canLand(game, [2]int{x + moveDiffs[i][0], y + moveDiffs[i][1]}, white)
+			fmt.Println(free)
+			if free {
 				var newMove = getMove([2]int{x, y}, [2]int{x + moveDiffs[i][0], y + moveDiffs[i][1]})
 				var testGame = testMove(*game, &newMove)
 				if !IsCheck(&testGame, white) {
@@ -174,9 +178,9 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 }
 
 func moveDirection(game *GameState, x, y int, direction [2]int, white bool) (validMoves [][]byte) {
-	for i := 1; i < 8; i++ {
-		var canLand, taking = canLand(game, [2]int{x + (direction[0] * i), y + (direction[1] * i)}, white)
-		if canLand {
+	for i := 1; i < 7; i++ {
+		var free, taking = canLand(game, [2]int{x + (direction[0] * i), y + (direction[1] * i)}, white)
+		if free {
 			validMoves = append(validMoves, getMove([2]int{x, y}, [2]int{x + i, y}))
 			if taking {
 				break
@@ -189,6 +193,7 @@ func moveDirection(game *GameState, x, y int, direction [2]int, white bool) (val
 }
 
 func IsCheck(game *GameState, white bool) bool {
+	fmt.Println("IsCheck")
 	var pawnDirection = 1 //this is for finding attacking pawns
 	if !white {
 		pawnDirection = -1
@@ -198,13 +203,14 @@ func IsCheck(game *GameState, white bool) bool {
 
 	for i, row := range game.Board { //find the king
 		for j, piece := range row {
-			if piece[1] == 'K' && (piece[0] == 'W') == white {
+			if len(piece) == 3 && piece[1] == 'K' && ((piece[0] == 'W') == white) {
 				x = i
 				y = j
 			}
 		}
 	}
-
+	fmt.Println("Kinglocation=", x, y)
+	printBoard(game)
 	if game.Board[x+1][y+pawnDirection][1] == 'P' || game.Board[x-1][y+pawnDirection][1] == 'P' {
 		return true
 	}
@@ -249,6 +255,7 @@ func IsCheck(game *GameState, white bool) bool {
 }
 
 func IsMate(game *GameState, white bool) (mate, check bool) {
+	fmt.Println("IsMate")
 	if len(GetAllValidMoves(game, white)) == 0 {
 		if IsCheck(game, white) {
 			return true, true
@@ -294,6 +301,7 @@ func canOnpassant(game *GameState, x, y int, white bool) (left, right bool) {
 
 //used for testing if a move will place the king in check so that functions can be passed only the board state after the move
 func testMove(game GameState, move *[]byte) GameState {
+	fmt.Println("testMove")
 	MakeMove(&game, move)
 	return game
 }
@@ -301,11 +309,12 @@ func testMove(game GameState, move *[]byte) GameState {
 //white is whether or not the current player is white for handling taking
 //if canLand is false taking sould be ignored (it will always be false)
 func canLand(game *GameState, square [2]int, white bool) (canLand, taking bool) {
-	if !(square[0] >= 0 && square[0] <= 7 && square[1] >= 0 && square[1] <= 7) { //is the destination off the board?
+	fmt.Println("canLand")
+	if square[0] < 0 || square[0] > 7 || square[1] < 0 || square[1] > 7 { //is the destination off the board?
 		return false, false
 	}
 	var piece = game.Board[square[0]][square[1]]
-	var occupied bool = len(piece) != 0
+	var occupied bool = len(piece) == 0
 
 	if !occupied { //on the board and empty
 		return true, false
@@ -322,6 +331,7 @@ func getMove(source [2]int, dest [2]int) []byte {
 }
 
 func GetAllValidMoves(game *GameState, white bool) (validMoves [][]byte) {
+	fmt.Println("GetAllValidMoves")
 	var piece []byte
 	for x := range game.Board {
 		for y := range game.Board[x] {
@@ -335,6 +345,7 @@ func GetAllValidMoves(game *GameState, white bool) (validMoves [][]byte) {
 }
 
 func IsMoveValid(game *GameState, move *[]byte) bool {
+	fmt.Println("IsMoveValid")
 	var x, y = getSquareIndices((*move)[0:2])
 	var moveList = GetValidMoves(game, x, y)
 	for i := range moveList {
@@ -346,6 +357,7 @@ func IsMoveValid(game *GameState, move *[]byte) bool {
 }
 
 func GetBoardState(moveList *[][]byte) GameState {
+	fmt.Println("GetBoardState")
 	var game GameState = NewGame()
 	for moveNum := range *moveList {
 		MakeMove(&game, &(*moveList)[moveNum])
@@ -357,8 +369,10 @@ func GetBoardState(moveList *[][]byte) GameState {
 //note that this does not check if the move is valid because it causes and infinite loop XD
 //you therefor need to make sure the move is allowed before trying it
 func MakeMove(game *GameState, move *[]byte) { //@todo add ugrading pawns
+	fmt.Println("MakeMove")
 	ox, oy := getSquareIndices((*move)[0:2])
 	nx, ny := getSquareIndices((*move)[3:5])
+	fmt.Println(ox, oy, nx, ny)
 	var piece = game.Board[ox][oy]
 	var white = piece[0] == 'W'
 	var pieceType = piece[1]
@@ -408,6 +422,7 @@ func countQueens(game *GameState, white bool) int {
 //This function is used to convert a piece location in Algebraic notation
 //to a piece location in the internal board 2d slice
 func getSquareIndices(squareID []byte) (x, y int) {
+	fmt.Println("square", string(squareID))
 	y = int(squareID[1] - '1')
 	x = int(squareID[0] - 'a')
 	return
@@ -455,4 +470,11 @@ func Runtest() {
 	for _, move := range moveList {
 		fmt.Println(string(move))
 	}
+}
+
+func printBoard(game *GameState) {
+	var board, _ = json.MarshalIndent(game.Board, "", "  ")
+	fmt.Println(string(board))
+	// fmt.Printf("%s\n", )
+	// fmt.Println(game.Board)
 }
