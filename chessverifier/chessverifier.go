@@ -22,7 +22,8 @@ func NewGame() GameState {
 
 // }
 
-func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
+func GetValidMoves(game *GameState, x, y int) [][]byte {
+	var validMoves [][]byte
 	fmt.Println("GetValidMoves", x, y)
 	var piece = game.Board[x][y]
 	// fmt.Println(string(piece))
@@ -75,9 +76,6 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		for _, direction := range squareDirections {
 			validMoves = append(validMoves, moveDirection(game, x, y, direction, white)...)
 		}
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 0}, white)...) //left
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, 1}, white)...)  //up
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...) //down
 
 	case 'N':
 		var moveDiffs = knightMoves
@@ -99,23 +97,10 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 			validMoves = append(validMoves, moveDirection(game, x, y, direction, white)...)
 		}
 
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 1}, white)...)   //up-right
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, -1}, white)...) //down-left
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, -1}, white)...)  //down-right
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 1}, white)...)  //down-left
-
 	case 'Q':
 		for _, direction := range append(squareDirections, diagonalDirections...) {
 			validMoves = append(validMoves, moveDirection(game, x, y, direction, white)...)
 		}
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 0}, white)...)   //right
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 0}, white)...)  //left
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, 1}, white)...)   //up
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{0, -1}, white)...)  //down
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, 1}, white)...)   //up-right
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, -1}, white)...) //down-left
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{1, -1}, white)...)  //down-right
-		// validMoves = append(validMoves, moveDirection(game, x, y, [2]int{-1, 1}, white)...)  //down-left
 
 	case 'K':
 		var moveDiffs [8][2]int = [8][2]int{[2]int{1, 0}, [2]int{1, 1}, [2]int{0, 1},
@@ -181,7 +166,15 @@ func GetValidMoves(game *GameState, x, y int) (validMoves [][]byte) {
 		}
 	}
 	fmt.Println(validMoves)
-	return validMoves
+	var freeMoves [][]byte
+	var testGame GameState
+	for _, move := range validMoves {
+		testMove(testGame, &move)
+		if !IsCheck(game, white) {
+			freeMoves = append(freeMoves, move)
+		}
+	}
+	return freeMoves
 }
 
 func moveDirection(game *GameState, x, y int, direction [2]int, white bool) (validMoves [][]byte) {
@@ -432,7 +425,7 @@ func countQueens(game *GameState, white bool) int {
 	var count int
 	for _, row := range game.Board { //find the king
 		for _, piece := range row {
-			if piece[1] == 'Q' && (piece[0] == 'W') == white {
+			if len(piece) == 3 && piece[1] == 'Q' && (piece[0] == 'W') == white {
 				count++
 			}
 		}
@@ -443,6 +436,9 @@ func countQueens(game *GameState, white bool) int {
 //This function is used to convert a piece location in Algebraic notation
 //to a piece location in the internal board 2d slice
 func GetSquareIndices(squareID []byte) (x, y int) {
+	if len(squareID) != 2 {
+		return -1, -1
+	}
 	// fmt.Println("square", string(squareID))
 	y = int(squareID[1] - '1')
 	x = int(squareID[0] - 'a')
