@@ -27,7 +27,7 @@ define([
 
 				this.$el.css('position','absolute');
 				loc = this.model.get('location');
-				this.$el.offset({left: loc[0] * 52, top: (9 - loc[1]) * 52});
+				this.$el.offset({left: loc[0] * 50, top: (9 - loc[1]) * 50});
 			},
 			startDrag:function(event, ui){
 				console.log(event);
