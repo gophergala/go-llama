@@ -1,9 +1,10 @@
 define([
 	'marionette',
 	'app/models/piece',
-	'text!templates/piece.html'
+	'text!templates/piece.html',
+	'wsHandler'
 	],
-	function(Marionette, Piece, PieceTemplate){
+	function(Marionette, Piece, PieceTemplate, wsHandler){
 		var PieceView = Marionette.ItemView.extend({
 			className:'piece',
 			template:_.template(PieceTemplate),
@@ -31,8 +32,18 @@ define([
 					var newcol = dataset.col;
 					var loc = [newcol, newrow];
 					var oldloc = this.model.get('location');
+					var oldcol = oldloc[0];
+
+					var oldchr = String.fromCharCode(96 + parseInt(oldcol));
+					var newchr = String.fromCharCode(96 + parseInt(newcol));
+
 					this.model.set('location', loc);
-					$('#movelog').append('[' + oldloc[0] + ',' + oldloc[1] + '],[' + loc[0] + ',' + loc[1] + ']<br>');
+
+					var moveString = oldchr + oldloc[1] + '-' + newchr + loc[1];
+					$('#movelog').append(moveString + '<br>');
+
+					wsHandler.moveRequest(moveString);
+
 					console.log('success!');
 					return false;
 				}
