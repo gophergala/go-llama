@@ -27,11 +27,11 @@ The details of the API can be found in /static/chessapi.html
 
 ___
 ##Screenshots
-![signin](https://raw.github.com/gophergala/go-llama/master/screenshots/sign_in.png)
+![signin](screenshots/sign_in.png?raw=true)
 
-![game_offer](https://raw.github.com/gophergala/go-llama/master/screenshots/game_offer.png)
+![game_offer](screenshots/game_offer.png?raw=true)
 
-![in_game](https://raw.github.com/gophergala/go-llama/master/screenshots/in_game.png)
+![in_game](screenshots/in_game.png?raw=true)
 
 
 ___
