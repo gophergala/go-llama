@@ -43,3 +43,11 @@ type APIGameOutput struct {
 	Type string     `json:"type"`
 	Game *ChessGame `json:"game"`
 }
+
+type APISignupRequest struct {
+	Type      string `json:"type"`
+	Username  string `json:"username"`
+	UserToken string `json:"user_token"`
+	IsAi      bool   `json:"is_ai"`
+	VersesAi  bool   `json:"verses_ai"`
+}

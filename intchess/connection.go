@@ -86,7 +86,20 @@ func (c *Connection) DecodeMessage(message []byte) {
 			fmt.Println("Anon user authenticates as " + c.User.Username)
 		}
 		c.SendAuthenticationResponse()
-
+	case "signup_request":
+		if c.User != nil {
+			//they are already authenticated
+			return
+		}
+		var a APISignupRequest
+		if err := json.Unmarshal(message, &a); err != nil {
+			return
+		}
+		if u := AttemptCreate(a.Username, a.UserToken); u != nil {
+			c.User = u
+			fmt.Println("Anon user creates and authenticates as " + c.User.Username)
+		}
+		c.SendSignupResponse()
 	case "game_response":
 		var r APIGameResponse
 		if err := json.Unmarshal(message, &r); err != nil {
@@ -111,6 +124,25 @@ func (c *Connection) SendAuthenticationResponse() {
 
 	resp := APIAuthenticationResponse{
 		Type:     "authentication_response",
+		Response: ResponseStr,
+		User:     c.User,
+	}
+
+	serverMsg, _ := json.Marshal(resp)
+	c.sendMessages <- string(serverMsg)
+	return
+}
+
+func (c *Connection) SendSignupResponse() {
+	var ResponseStr string
+	if c.User == nil {
+		ResponseStr = "username taken or bad signup request"
+	} else {
+		ResponseStr = "ok"
+	}
+
+	resp := APIAuthenticationResponse{
+		Type:     "signup_response",
 		Response: ResponseStr,
 		User:     c.User,
 	}
