@@ -27,6 +27,7 @@ td.white {
 
 #board-div {
 	float: left;
+	margin-left: 10em;
 }
 
 #interaction-window {
@@ -38,4 +39,10 @@ td.white {
 
 td.highlight {
 	background-color: cyan;
+}
+
+#chat-history {
+	margin-top: 2em;
+	overflow-y: scroll;
+	height: 400px;
 }

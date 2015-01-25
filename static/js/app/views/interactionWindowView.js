@@ -6,9 +6,63 @@ define([
 	'text!templates/interactionWindow/loginForm.html',
 	'text!templates/interactionWindow/registerForm.html',
 	'text!templates/interactionWindow/gameRequest.html',
-	'text!templates/interactionWindow/generic.html'
+	'text!templates/interactionWindow/generic.html',
+	'text!templates/interactionWindow/chat.html'
+
 	],
-	function(Marionette, wsHandler, $, loadingTpl, loginTpl, registerTpl, gameRequest, genericTpl){
+	function(Marionette, wsHandler, $, loadingTpl, loginTpl, registerTpl, gameRequest, genericTpl, chatTpl){
+
+		var chatMessages = {
+			1: "Hello",
+			2: "I am the King.",
+			3: "You took my piece!",
+			4: "Bishop! I need a bishop!",
+			5: "I didn't like that Knight anyway...",
+			6: ":)",
+			7: ":(",
+			8: "D:",
+			9: ":D",
+			10: "I'm gonna get you back for that.",
+			11: "You sunk my battleship...",
+			12: "Prepare for defeat!",
+			13: "Nicely done.",
+			14: "This isn't a game, this is a slaughter!",
+			15: "Don't worry be happy :-)"
+		};
+
+
+		var dateNow = function(){
+			var today = new Date();
+		    var dd = today.getDate();
+		    var mm = today.getMonth()+1; //January is 0!
+
+		    var hh = today.getHours()+1;
+		    var mm = today.getMinutes();
+		    var ss = today.getSeconds();
+
+		    var yyyy = today.getFullYear();
+		    if(dd<10){
+		        dd='0'+dd
+		    } 
+		    if(mm<10){
+		        mm='0'+mm
+		    } 
+
+		    if(hh<10){
+		    	hh = '0'+hh;
+		    }
+
+		    if(mm<10){
+		    	mm = '0'+mm;
+		    }
+
+		    if(ss<10){
+		    	ss = '0'+ss;
+		    }
+
+
+		    return dd+'/'+mm+'/'+yyyy+' '+hh+':'+mm+':'+ss;
+		}
 
 
 		var tplData = {};
@@ -35,7 +89,8 @@ define([
 				'click #i-want-to-login': 'showLoginView',
 				'click #register-button': 'doRegister',
 				'click #game-accept': 'acceptGame',
-				'click #game-deny': 'denyGame'
+				'click #game-deny': 'denyGame',
+				'click #chat-button': 'doChat'
 			},
 			
 
@@ -78,10 +133,12 @@ define([
 			denyGame: function(e){
 				wsHandler.gameResponse(false);
 				return changeView(loadingTpl, {msg: 'Waiting for game'});
+			},
+
+			doChat: function(e){
+				e.preventDefault();
+				wsHandler.sendChat($('#chat-select').val());
 			}
-
-
-
 
 		});
 
@@ -117,15 +174,11 @@ define([
 
 		});
 
-		console.log(iw);
-
 
 		wsHandler.on('game_request', function(opponent){
-
-
 			//Only do this once if the game starts
 			wsHandler.once('game_move_update', function(opponent){
-				return changeView(genericTpl, {msg: 'Game started!'});
+				return changeView(chatTpl);
 			});
 
 			return changeView(gameRequest, {opponent: opponent});
@@ -133,6 +186,11 @@ define([
 
 		wsHandler.on('game_response_rejection', function(opponent){
 			return changeView(loadingTpl, {msg: 'Last game did not start.<br>Waiting for game'});
+		});
+
+		wsHandler.on('game_chat', function(from, messageId){
+			$("#chat-history").append('<p>'+dateNow()+' - <b>'+from.username+'</b>: '+chatMessages[messageId]+'</p>');
+			$("#chat-history").scrollTop($('#chat-history').prop("scrollHeight"));
 		});
 
 

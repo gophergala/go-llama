@@ -34,10 +34,12 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 		switch(data.type){
 			case 'authentication_response':
 				wsHandler.trigger('authentication_response', data.response, data.user);
+				if(data.user) wsHandler.user = data.user;
 				break;
 
 			case 'signup_response':
 				wsHandler.trigger('signup_response', data.response, data.user);
+				if(data.user) wsHandler.user = data.user;
 				break;
 
 			case 'game_request':
@@ -50,6 +52,10 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 
 			case 'game_move_update':
 				wsHandler.trigger('game_move_update', data.game);
+				break;
+
+			case 'game_chat':
+				wsHandler.trigger('game_chat', data.from, data.message_id);
 				break;
 
 
@@ -75,6 +81,11 @@ define('wsHandler', ['jquery', 'underscore', 'backbone'], function($, _, Backbon
 	wsHandler.moveRequest = function(move){
 		wsHandler.socket.sendJSON({type: 'game_move_request', move: move});
 	};
+
+	wsHandler.sendChat = function(chatId){
+		console.log({type: 'game_chat_request', message_id: parseInt(chatId)});
+		wsHandler.socket.sendJSON({type: 'game_chat_request', message_id: parseInt(chatId)});
+	}
 
 
 	wsHandler.on('all', function(){
