@@ -54,18 +54,18 @@ define(
 					if(game.game_moves.length % 2 == 0){
 						window.whichColor = 'white';
 						window.WhosMove = game.white.username;
-						$('#currentColor').html('<p>' + game.white.username + '`s turn! (white)</p>'); 
+						$('#currentColor').html(game.white.username + '`s turn! (white)'); 
 					}
 					else {
 						window.whichColor = 'black';
 						window.WhosMove = game.black.username;
-						$('#currentColor').html('<p>' + game.black.username + '`s turn! (black)</p>'); 
+						$('#currentColor').html(game.black.username + '`s turn! (black)'); 
 					}
 				}
 				else {
 					window.whichColor = 'white';
 					window.WhosMove = game.white.username;
-					$('#currentColor').html('<p>' + game.white.username + '`s turn! (white)</p>'); 
+					$('#currentColor').html(game.white.username + '`s turn! (white)'); 
 				}
 
 				boardStatus = game.board_status;
