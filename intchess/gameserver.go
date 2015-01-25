@@ -166,7 +166,9 @@ func (GS *GameServer) attemptMatchCreations() {
 
 	//then pair with i and i+1
 	for i := 0; i < lenOutGamers; i += 2 {
-		GS.attemptMatchCreation(outOfGameConnections[i], outOfGameConnections[i+1])
+		if outOfGameConnections[i].User.Id != outOfGameConnections[i+1].User.Id { //users are not allowed to verse themselves
+			GS.attemptMatchCreation(outOfGameConnections[i], outOfGameConnections[i+1])
+		}
 	}
 }
 
