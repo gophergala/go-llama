@@ -30,7 +30,7 @@ define([
 				this.$el.offset({left: loc[0] * 50, top: ((9 - loc[1]) * 50) - 30});
 			},
 			startDrag:function(event, ui){
-				console.log(event);
+				// console.log(event);
 				var startLoc = this.model.get('location');
 				var locChr = String.fromCharCode(96 + parseInt(startLoc[0]));
 				var locationString = locChr + startLoc[1];
@@ -38,7 +38,6 @@ define([
 					locationString = locChr + (9 - startLoc[1]);
 				}
 				wsHandler.getValidMoves(locationString);
-				// send that location to request valid moves
 			},
 			revert:function(socketObj){
 				if(socketObj){

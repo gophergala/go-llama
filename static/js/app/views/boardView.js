@@ -40,33 +40,55 @@ define(
 				this.whitePieces.reset();
 			},
 			updateBoard:function(game){
+				$('.validSquare').each(function(index, element){
+					$(element).removeClass('validSquare');
+				});
 				this.blackPieces.reset();
 				this.whitePieces.reset();
 
-				console.log(game);
-				console.log(wsHandler.user);
+				// console.log(game);
+				// console.log(wsHandler.user);
 				if(wsHandler.user.username === game.white.username){
 					window.YourColor = 'white';
 				}
 				else {
 					window.YourColor = 'black';
+					// $('td').toggleClass('white');
+					// $('td.white').css('background-color', '#525252');
+					// $('td.black').css('background-color', '#BABABA');
 				}
+
 				if(game.game_moves){
 					if(game.game_moves.length % 2 == 0){
 						window.whichColor = 'white';
 						window.WhosMove = game.white.username;
-						$('#currentColor').html(game.white.username + '`s turn! (white)'); 
+						if(window.YourColor === window.whichColor){
+							$('#currentColor').html('It`s your turn!'); 
+						}
+						else {
+							$('#currentColor').html('It`s ' + game.white.username + '`s turn!');
+						}
 					}
 					else {
 						window.whichColor = 'black';
 						window.WhosMove = game.black.username;
-						$('#currentColor').html(game.black.username + '`s turn! (black)'); 
+						if(window.YourColor === window.whichColor){
+							$('#currentColor').html('It`s your turn!'); 
+						}
+						else {
+							$('#currentColor').html('It`s ' + game.black.username + '`s turn!');
+						}
 					}
 				}
 				else {
 					window.whichColor = 'white';
 					window.WhosMove = game.white.username;
-					$('#currentColor').html(game.white.username + '`s turn! (white)'); 
+					if(window.YourColor === window.whichColor){
+						$('#currentColor').html('It`s your turn!'); 
+					}
+					else {
+						$('#currentColor').html('It`s ' + game.white.username + '`s turn!');
+					}
 				}
 
 				boardStatus = game.board_status;
@@ -176,7 +198,28 @@ define(
 				}
 			},
 			showValidMoves:function(moves){
-				console.log(moves);
+				// console.log(moves);
+				_.each(moves, function(item, key){
+					// var decodedCell = window.atob(cell);
+					var decodedMove = window.atob(item);
+					// console.log(decodedMove);
+					var validCol = (decodedMove.charCodeAt(3)) - 96;
+					var validRow = decodedMove[4];
+					// console.log(validCol);
+					// console.log(validRow);
+					if(window.YourColor === 'black'){
+						validRow = 9 - validRow;
+					}
+
+					$('[data-col="' + validCol + '"][data-row="' + validRow + '"]').each(function(index, element){
+						$(element).addClass('validSquare');
+					});
+
+					
+
+					// var destination = item[1];
+					
+				});
 			},
 			onRender:function(){
 				this.blackPiecesRegion.show(this.blackPiecesView);

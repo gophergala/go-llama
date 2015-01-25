@@ -9,13 +9,15 @@ tbody {
 	position: absolute;
 }
 td {
-	background-color: #525252;
+	/*background-color: #525252;*/
 	width: 50px;
 	height: 50px;
 	padding: 0;
 	margin: 1px;
 }
-
+td.black {
+	background-color: #525252;
+}
 td.white {
 	background-color: #BABABA;
 }
@@ -42,7 +44,7 @@ td.white {
 	width: 400px;
 }
 
-td.highlight {
+td.white.highlight, td.black.highlight {
 	background-color: cyan;
 }
 
@@ -105,4 +107,8 @@ label {
 	background-color: white;
 	width: 100%;
 	border-top: 1px solid black;
+}
+
+td.black.validSquare, td.white.validSquare {
+	background-color: green;
 }
