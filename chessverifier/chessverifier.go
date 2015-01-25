@@ -363,7 +363,8 @@ func MakeMove(game *GameState, move *[]byte) { //@todo add ugrading pawns
 	var white = piece[0] == 'W'
 	var pieceType = piece[1]
 	if pieceType == 'P' {
-		if canOnpassant(game, ox, oy, white) && (nx != ox) {
+		var left, right = canOnpassant(game, ox, oy, white)
+		if (left || right) && (nx != ox) {
 			game.Board[nx][oy] = []byte{}
 		} else if white && ny == 7 {
 			game.Board[ox][oy] = []byte{}
@@ -394,8 +395,8 @@ func MakeMove(game *GameState, move *[]byte) { //@todo add ugrading pawns
 
 func countQueens(game *GameState, white bool) int {
 	var count int
-	for i, row := range game.Board { //find the king
-		for j, piece := range row {
+	for _, row := range game.Board { //find the king
+		for _, piece := range row {
 			if piece[1] == 'Q' && (piece[0] == 'W') == white {
 				count++
 			}
