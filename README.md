@@ -23,7 +23,7 @@ The Internet Chess server depends on a number of publically available open-sourc
 - [Mysql](http://github.com/go-sql-driver/mysql)
 
 
-The details of the API can be found in /static/chessapi.html
+The details of the API can be found in /static/chessapi/index.html
 
 ___
 ##Screenshots
