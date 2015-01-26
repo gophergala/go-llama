@@ -116,7 +116,7 @@ func (c *ChessGame) End() bool {
 	//check disconnections
 	if c.Status == "in_progress" {
 		if !c.ClientsStillConnected() {
-			c.Status = "disconnection"
+			c.Status = "disconnected"
 			c.EndGame()
 			return true
 		}
