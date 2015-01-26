@@ -4,7 +4,7 @@ ___
 
 ###Gopher Gala 2015 entry (48 hour programming challenge)
 
-This project is an internet chess server for players to be matched in real time with other players and AIs from around the world.
+This project is a complete internet chess server written in Go for players to be matched in real time with other players and AIs from around the world.
 
 Its purpose is twofold: Firstly, to provide players with the ability to play chess through the internet through their browsers; and secondly, to provide a fully-featured API that developers can connect their own front-ends and (more excitingly) their own AIs to.
 
@@ -27,6 +27,9 @@ The details of the API can be found in /static/chessapi.html
 
 ___
 ##Screenshots
+
+Video of gameplay available on [YouTube](http://youtu.be/CfuI1680Hmk) (or open the video in the screenshots directory)
+
 ![signin](screenshots/sign_in.png?raw=true)
 
 ![game_offer](screenshots/game_offer.png?raw=true)
