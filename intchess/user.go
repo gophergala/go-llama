@@ -30,7 +30,7 @@ func AttemptLogin(propUsername string, propPassword string) *User {
 	return nil
 }
 
-func AttemptCreate(propUsername string, propPassword string) *User {
+func AttemptCreate(propUsername string, propPassword string, isAi bool, versesAi bool) *User {
 	var propUser User
 
 	if dbGorm.Where(&User{Username: propUsername}).First(&propUser).RecordNotFound() {
@@ -38,6 +38,8 @@ func AttemptCreate(propUsername string, propPassword string) *User {
 		hashpass, _ := bcrypt.GenerateFromPassword([]byte(propPassword), 3)
 		//if err != nil {
 		propUser.AccessToken = string(hashpass)
+		propUser.IsAi = isAi
+		propUser.VersesAi = isAi
 		dbGorm.Create(&propUser)
 		return &propUser
 		// } else {

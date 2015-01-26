@@ -80,7 +80,7 @@ func (c *Connection) DecodeMessage(message []byte) {
 		if err := json.Unmarshal(message, &a); err != nil {
 			return
 		}
-		if u := AttemptCreate(a.Username, a.UserToken); u != nil {
+		if u := AttemptCreate(a.Username, a.UserToken, a.IsAi, a.VersesAi); u != nil {
 			c.User = u
 			fmt.Println("Anon user creates and authenticates as " + c.User.Username)
 		}
