@@ -50,4 +50,15 @@ The Internet chess environment is set up utilising multiple resources:
 ___
 ##Running locally
 
+To run locally, go get the libraries, specify a database connection string in connstring.go, and build.
 
+First run with the -makeDB command.
+
+It will introduce two users, test / test and test2 / test as well as build your database tables.
+
+Finally, run again - you can specify a -addr :port to change from port 8080 (default) to a port of your choice.
+
+___
+##Developing an AI
+
+To develop a custom AI, see the chessai package.
